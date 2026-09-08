@@ -2,9 +2,9 @@
  * COSC 4400 - Project #1
  * Implements a scanner for the COSC 4400 MiniJava language.
  *
- * @authors [Ben Ferber], [Nick Grons]
- * Instructor [Dennis Brylow]
- * TA-BOT:MAILTO [benjamin.ferber@marquette.edu], [nicholas.grons@marquette.edu]
+ * @authors [YOUR NAME], [PARTNER NAME]
+ * Instructor [INSTRUCTOR NAME]
+ * TA-BOT:MAILTO [YOUR EMAIL], [PARTNER EMAIL]
  */
 
 import java.io.IOException;
