@@ -12,9 +12,6 @@ import java.io.InputStreamReader;
 
 public class Scanner {
 
-    /*
-     * DFA states
-     */
     private static final int START = 0;
     private static final int IDENTIFIER = 1;
     private static final int DECIMAL = 2;
@@ -23,9 +20,6 @@ public class Scanner {
     private static final int HEX_PREFIX = 5;
     private static final int HEX = 6;
 
-    /*
-     * Character classes used by the DFA.
-     */
     private static final int LETTER = 0;
     private static final int HEX_LETTER = 1;
     private static final int X_CHAR = 2;
@@ -36,29 +30,15 @@ public class Scanner {
     private static final int DELIMITER = 7;
     private static final int OTHER = 8;
 
-    /*
-     * Special transition results.
-     */
     private static final int INVALID = -1;
     private static final int ACCEPT = -2;
 
     private static final int NUM_STATES = 7;
     private static final int NUM_CLASSES = 9;
 
-    /*
-     * 2D DFA transition table.
-     *
-     * transition[currentState][characterClass]
-     */
     private static final int[][] transition =
         new int[NUM_STATES][NUM_CLASSES];
 
-    /*
-     * Reserved words and their token names.
-     *
-     * A 2D array is intentionally used instead of
-     * a HashMap/hash table.
-     */
     private static final String[][] keywords = {
         {"class", "CLASS"},
         {"public", "PUBLIC"},
@@ -85,22 +65,11 @@ public class Scanner {
         {"Xinu.readint", "READINT"}
     };
 
-    /*
-     * Entire input program and current position.
-     */
     private static String input;
     private static int pos;
 
-
-    /*
-     * Initialize the DFA transition table.
-     */
     private static void initializeTransitions() {
 
-        /*
-         * Every transition is invalid unless
-         * explicitly defined below.
-         */
         for (int state = 0; state < NUM_STATES; state++) {
             for (int character = 0;
                  character < NUM_CLASSES;
@@ -110,9 +79,6 @@ public class Scanner {
             }
         }
 
-        /*
-         * START
-         */
         transition[START][LETTER] = IDENTIFIER;
         transition[START][HEX_LETTER] = IDENTIFIER;
         transition[START][X_CHAR] = IDENTIFIER;
@@ -122,12 +88,6 @@ public class Scanner {
         transition[START][DIGIT_1_7] = DECIMAL;
         transition[START][DIGIT_8_9] = DECIMAL;
 
-
-        /*
-         * IDENTIFIER
-         *
-         * LETTER (LETTER | DIGIT | _)*
-         */
         transition[IDENTIFIER][LETTER] = IDENTIFIER;
         transition[IDENTIFIER][HEX_LETTER] = IDENTIFIER;
         transition[IDENTIFIER][X_CHAR] = IDENTIFIER;
@@ -141,10 +101,6 @@ public class Scanner {
         transition[IDENTIFIER][DELIMITER] = ACCEPT;
         transition[IDENTIFIER][OTHER] = INVALID;
 
-
-        /*
-         * DECIMAL
-         */
         transition[DECIMAL][ZERO] = DECIMAL;
         transition[DECIMAL][DIGIT_1_7] = DECIMAL;
         transition[DECIMAL][DIGIT_8_9] = DECIMAL;
@@ -157,14 +113,6 @@ public class Scanner {
         transition[DECIMAL][UNDERSCORE] = INVALID;
         transition[DECIMAL][OTHER] = INVALID;
 
-
-        /*
-         * LEADING ZERO
-         *
-         * 0       decimal
-         * 01-07   octal
-         * 0x...   hexadecimal
-         */
         transition[LEADING_ZERO][ZERO] = OCTAL;
         transition[LEADING_ZERO][DIGIT_1_7] = OCTAL;
 
@@ -178,10 +126,6 @@ public class Scanner {
         transition[LEADING_ZERO][UNDERSCORE] = INVALID;
         transition[LEADING_ZERO][OTHER] = INVALID;
 
-
-        /*
-         * OCTAL
-         */
         transition[OCTAL][ZERO] = OCTAL;
         transition[OCTAL][DIGIT_1_7] = OCTAL;
 
@@ -194,12 +138,6 @@ public class Scanner {
         transition[OCTAL][UNDERSCORE] = INVALID;
         transition[OCTAL][OTHER] = INVALID;
 
-
-        /*
-         * HEX PREFIX
-         *
-         * The reference scanner accepts bare 0x.
-         */
         transition[HEX_PREFIX][ZERO] = HEX;
         transition[HEX_PREFIX][DIGIT_1_7] = HEX;
         transition[HEX_PREFIX][DIGIT_8_9] = HEX;
@@ -212,10 +150,6 @@ public class Scanner {
         transition[HEX_PREFIX][UNDERSCORE] = INVALID;
         transition[HEX_PREFIX][OTHER] = INVALID;
 
-
-        /*
-         * HEX
-         */
         transition[HEX][ZERO] = HEX;
         transition[HEX][DIGIT_1_7] = HEX;
         transition[HEX][DIGIT_8_9] = HEX;
@@ -229,10 +163,6 @@ public class Scanner {
         transition[HEX][OTHER] = INVALID;
     }
 
-
-    /*
-     * Determine the DFA character class.
-     */
     private static int getCharClass(char c) {
 
         if (c == 'x' || c == 'X') {
@@ -245,7 +175,7 @@ public class Scanner {
             return HEX_LETTER;
         }
 
-        if (Character.isLetter(c)) {
+        if (isAsciiLetter(c)) {
             return LETTER;
         }
 
@@ -272,10 +202,6 @@ public class Scanner {
         return OTHER;
     }
 
-
-    /*
-     * Characters that terminate identifiers and numbers.
-     */
     private static boolean isDelimiter(char c) {
 
         if (Character.isWhitespace(c)) {
@@ -285,10 +211,6 @@ public class Scanner {
         return "{}()[];,.=!+-*/&|<>^~\"".indexOf(c) >= 0;
     }
 
-
-    /*
-     * Search the 2D reserved-word table.
-     */
     private static String keywordToken(String lexeme) {
 
         for (int i = 0; i < keywords.length; i++) {
@@ -301,28 +223,27 @@ public class Scanner {
         return null;
     }
 
-
-    /*
-     * Test whether the remaining input begins
-     * with the supplied string.
-     */
     private static boolean startsWith(String text) {
         return input.startsWith(text, pos);
     }
 
-
-    /*
-     * Valid characters after the first character
-     * of an identifier.
-     */
     private static boolean isIdentifierPart(char c) {
-        return Character.isLetterOrDigit(c) || c == '_';
+        return isAsciiLetterOrDigit(c) || c == '_';
     }
 
+    private static boolean isAsciiLetter(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z');
+    }
 
-    /*
-     * Scan an identifier or reserved word.
-     */
+    private static boolean isAsciiDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private static boolean isAsciiLetterOrDigit(char c) {
+        return isAsciiLetter(c) || isAsciiDigit(c);
+    }
+
     private static void scanIdentifier() {
 
     int start = pos;
@@ -336,37 +257,14 @@ public class Scanner {
         int nextState =
             transition[state][characterClass];
 
-
-        /*
-         * Normal end of identifier.
-         */
         if (nextState == ACCEPT) {
             break;
         }
 
-
-        /*
-         * An illegal character attached directly
-         * to an identifier makes the entire token
-         * illegal.
-         *
-         * Example:
-         *
-         * abc$def
-         *
-         * -> Illegal token.
-         */
         if (nextState == INVALID) {
 
-            /*
-             * Consume the illegal character.
-             */
             pos++;
 
-            /*
-             * Consume the remainder of the malformed
-             * token until a real delimiter is reached.
-             */
             while (pos < input.length()) {
 
                 char bad = input.charAt(pos);
@@ -384,19 +282,13 @@ public class Scanner {
             return;
         }
 
-
         state = nextState;
         pos++;
     }
 
-
     String lexeme =
         input.substring(start, pos);
 
-
-    /*
-     * Handle the four compound Xinu reserved words.
-     */
     if (lexeme.equals("Xinu") &&
         pos < input.length() &&
         input.charAt(pos) == '.') {
@@ -428,7 +320,6 @@ public class Scanner {
         }
     }
 
-
     String token = keywordToken(lexeme);
 
     if (token != null) {
@@ -440,19 +331,13 @@ public class Scanner {
     }
 }
 
-
-    /*
-     * After finding an invalid character in a number,
-     * consume the rest of the malformed number so that
-     * it produces a single error.
-     */
     private static void consumeBadNumberTail() {
 
         while (pos < input.length()) {
 
             char c = input.charAt(pos);
 
-            if (Character.isLetterOrDigit(c) ||
+            if (isAsciiLetterOrDigit(c) ||
                 c == '_') {
 
                 pos++;
@@ -463,10 +348,6 @@ public class Scanner {
         }
     }
 
-
-    /*
-     * Scan decimal, octal, and hexadecimal literals.
-     */
     private static void scanNumber() {
 
         int start = pos;
@@ -474,7 +355,6 @@ public class Scanner {
 
         boolean error = false;
         String errorMessage = null;
-
 
         while (pos < input.length()) {
 
@@ -486,18 +366,10 @@ public class Scanner {
             int nextState =
                 transition[state][characterClass];
 
-
-            /*
-             * Valid token boundary.
-             */
             if (nextState == ACCEPT) {
                 break;
             }
 
-
-            /*
-             * Invalid character within the number.
-             */
             if (nextState == INVALID) {
 
                 error = true;
@@ -519,9 +391,6 @@ public class Scanner {
                         "Invalid character in number.";
                 }
 
-                /*
-                 * Consume the offending character.
-                 */
                 pos++;
 
                 consumeBadNumberTail();
@@ -529,11 +398,9 @@ public class Scanner {
                 break;
             }
 
-
             state = nextState;
             pos++;
         }
-
 
         if (error) {
 
@@ -541,10 +408,8 @@ public class Scanner {
             return;
         }
 
-
         String lexeme =
             input.substring(start, pos);
-
 
         if (state == OCTAL) {
 
@@ -567,30 +432,16 @@ public class Scanner {
         }
     }
 
-
-    /*
-     * Scan a simple string literal.
-     *
-     * Escape sequences are not required.
-     */
     private static void scanString() {
 
-        /*
-         * Skip opening quote.
-         */
         pos++;
 
         int start = pos;
-
 
         while (pos < input.length()) {
 
             char c = input.charAt(pos);
 
-
-            /*
-             * Closing quote.
-             */
             if (c == '"') {
 
                 String value =
@@ -604,18 +455,11 @@ public class Scanner {
                 return;
             }
 
-
-            /*
-             * Strings cannot cross a line boundary.
-             */
             if (c == '\n' || c == '\r') {
 
                 System.out.println(
                     "String not terminated at end of line.");
 
-                /*
-                 * Handle Windows CRLF as one newline.
-                 */
                 if (c == '\r' &&
                     pos + 1 < input.length() &&
                     input.charAt(pos + 1) == '\n') {
@@ -630,23 +474,12 @@ public class Scanner {
             pos++;
         }
 
-
-        /*
-         * EOF also leaves the string unterminated.
-         */
         System.out.println(
             "String not terminated at end of line.");
     }
 
-
-    /*
-     * Scan '/', line comments, or block comments.
-     */
     private static void scanSlashOrComment() {
 
-        /*
-         * Slash at EOF.
-         */
         if (pos + 1 >= input.length()) {
 
             System.out.println("FORWARDSLASH");
@@ -654,13 +487,8 @@ public class Scanner {
             return;
         }
 
-
         char next = input.charAt(pos + 1);
 
-
-        /*
-         * Line comment.
-         */
         if (next == '/') {
 
             pos += 2;
@@ -675,10 +503,6 @@ public class Scanner {
             return;
         }
 
-
-        /*
-         * Block comment.
-         */
         if (next == '*') {
 
             pos += 2;
@@ -696,26 +520,16 @@ public class Scanner {
                 pos++;
             }
 
-
             System.out.println(
                 "Comment not terminated at end of input.");
 
             return;
         }
 
-
-        /*
-         * Ordinary division operator.
-         */
         System.out.println("FORWARDSLASH");
         pos++;
     }
 
-
-    /*
-     * Handle an operator that may consist of either
-     * one or two characters.
-     */
     private static void scanPossibleDouble(
         char secondCharacter,
         String doubleToken,
@@ -735,18 +549,6 @@ public class Scanner {
         }
     }
 
-
-    /*
-     * Consume an illegal token.
-     *
-     * This is important for cases such as:
-     *
-     * _abc
-     * abc$def
-     *
-     * The reference scanner reports only one illegal
-     * token for the malformed portion.
-     */
     private static void scanIllegalToken() {
 
         pos++;
@@ -767,10 +569,6 @@ public class Scanner {
         System.out.println("Illegal token.");
     }
 
-
-    /*
-     * Scan operators and punctuation.
-     */
     private static void scanOperatorOrPunctuation() {
 
         char c = input.charAt(pos);
@@ -895,10 +693,6 @@ public class Scanner {
         }
     }
 
-
-    /*
-     * Read all input from stdin.
-     */
     private static void readInput()
         throws IOException {
 
@@ -917,7 +711,6 @@ public class Scanner {
         input = builder.toString();
     }
 
-
     public static void main(String[] args)
         throws IOException {
 
@@ -926,58 +719,35 @@ public class Scanner {
 
         pos = 0;
 
-
         while (pos < input.length()) {
 
             char c = input.charAt(pos);
 
-
-            /*
-             * Whitespace is ignored.
-             */
             if (Character.isWhitespace(c)) {
 
                 pos++;
             }
 
-
-            /*
-             * Identifier or reserved word.
-             */
-            else if (Character.isLetter(c)) {
+            else if (isAsciiLetter(c)) {
 
                 scanIdentifier();
             }
 
-
-            /*
-             * Integer literal.
-             */
-            else if (Character.isDigit(c)) {
+            else if (isAsciiDigit(c)) {
 
                 scanNumber();
             }
 
-
-            /*
-             * String literal.
-             */
             else if (c == '"') {
 
                 scanString();
             }
 
-
-            /*
-             * Operators, punctuation, comments,
-             * or illegal tokens.
-             */
             else {
 
                 scanOperatorOrPunctuation();
             }
         }
-
 
         System.out.println("EOF");
     }
