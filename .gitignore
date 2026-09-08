@@ -1,0 +1,5 @@
+*.class
+*.out
+ours.txt
+reference.txt
+.DS_Store
