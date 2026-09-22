@@ -1,8 +1,8 @@
 package Absyn;
 
-public class AddExpr extends BinOpExpr
+public class MulExpr extends BinOpExpr
 {
-    public AddExpr(Expr e1, Expr e2)
+    public MulExpr(Expr e1, Expr e2)
     {
         super(e1, e2);
     }
