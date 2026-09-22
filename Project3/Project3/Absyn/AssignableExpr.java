@@ -1,6 +1,6 @@
 package Absyn;
 
-public abstract class Assignable Expr extends Expr
+public abstract class AssignableExpr extends Expr
 {
     
 }
