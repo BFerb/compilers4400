@@ -1,14 +1,20 @@
 package Absyn;
 
+import java.util.LinkedList;
+
 public class NewArrayExpr extends Expr
 {
-    public Expr e;
+    public Type type;
+    public LinkedList<Expr> dimensions;
 
-    public NewArrayExpr(Expr e)
+    public NewArrayExpr(Type type, LinkedList<Expr> dimensions)
     {
-        this.e = e;
+        this.type = type;
+        this.dimensions = dimensions;
     }
 
-    public void accept(Visitor v) {v.visit(this); 
+    public void accept(Visitor v)
+    {
+        v.visit(this);
     }
 }

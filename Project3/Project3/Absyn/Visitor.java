@@ -7,8 +7,6 @@ package Absyn;
 
 public interface Visitor
 {
-    /** Visitor pattern dispatch. */
-    //    public void visit(Absyn ast);
     public void visit(java.util.AbstractList<Visitable> list);
     public void visit(AddExpr ast);
     public void visit(AndExpr ast);
@@ -29,6 +27,7 @@ public interface Visitor
     public void visit(IdentifierType ast);
     public void visit(IfStmt ast);
     public void visit(IntegerLiteral ast);
+    public void visit(IntegerType ast);
     public void visit(LesserExpr ast);
     public void visit(MethodDecl ast);
     public void visit(MulExpr ast);

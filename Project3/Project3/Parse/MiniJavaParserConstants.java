@@ -11,17 +11,17 @@ public interface MiniJavaParserConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int INT = 23;
+  int INT = 48;
   /** RegularExpression Id. */
-  int STRING = 24;
+  int STRING = 49;
   /** RegularExpression Id. */
-  int ID = 25;
+  int ID = 50;
   /** RegularExpression Id. */
-  int LETTER = 26;
+  int LETTER = 51;
   /** RegularExpression Id. */
-  int DIGIT = 27;
+  int DIGIT = 52;
   /** RegularExpression Id. */
-  int UNDER = 28;
+  int UNDER = 53;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -37,7 +37,32 @@ public interface MiniJavaParserConstants {
     "\"class\"",
     "\"public\"",
     "\"static\"",
+    "\"extends\"",
+    "\"return\"",
+    "\"synchronized\"",
     "\"void\"",
+    "\"int\"",
+    "\"boolean\"",
+    "\"if\"",
+    "\"else\"",
+    "\"while\"",
+    "\"true\"",
+    "\"false\"",
+    "\"this\"",
+    "\"null\"",
+    "\"new\"",
+    "\"==\"",
+    "\"!=\"",
+    "\"&&\"",
+    "\"||\"",
+    "\"=\"",
+    "\"<\"",
+    "\">\"",
+    "\"+\"",
+    "\"-\"",
+    "\"*\"",
+    "\"/\"",
+    "\"!\"",
     "\".\"",
     "\"{\"",
     "\"}\"",
@@ -57,8 +82,7 @@ public interface MiniJavaParserConstants {
     "<LETTER>",
     "<DIGIT>",
     "\"_\"",
-    "<token of kind 29>",
-    "\"=\"",
+    "<token of kind 54>",
   };
 
 }

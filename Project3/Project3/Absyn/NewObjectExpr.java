@@ -2,13 +2,15 @@ package Absyn;
 
 public class NewObjectExpr extends Expr
 {
-    public String name;
-    
-    public NewObjectExpr(String name)
+    public Type type;
+
+    public NewObjectExpr(Type type)
     {
-        this.name = name;
+        this.type = type;
     }
 
-    public void accept(Visitor v) {v.visit(this); 
+    public void accept(Visitor v)
+    {
+        v.visit(this);
     }
 }

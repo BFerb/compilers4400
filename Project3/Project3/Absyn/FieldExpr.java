@@ -2,13 +2,17 @@ package Absyn;
 
 public class FieldExpr extends AssignableExpr
 {
-    public Expr expression;
+    public Expr record;
     public String field;
 
-    public FieldExpr(Expr expression, jString field)
+    public FieldExpr(Expr record, String field)
     {
-        this.expression = expression;
+        this.record = record;
         this.field = field;
     }
-    public void accept(Visitor v) {v.visit(this); }
+
+    public void accept(Visitor v)
+    {
+        v.visit(this);
+    }
 }
