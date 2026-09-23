@@ -1,4 +1,39 @@
-Parse.ParseException: Encountered " "void" "void "" at line 2, column 12.
-Was expecting:
-    "static" ...
-    
+Program(
+ AbstractList(
+  ClassDecl(UnaryExpressions null
+   AbstractList()
+   AbstractList(
+    MethodDecl(public_static_void main
+     AbstractList(
+      Formal(ArrayType(IdentifierType(String)) a))
+     AbstractList()
+     AbstractList(
+      XinuCallStmt(print
+       AbstractList(
+        NegExpr(
+         IntegerLiteral(5))))
+      XinuCallStmt(print
+       AbstractList(
+        NegExpr(
+         AddExpr(
+          IntegerLiteral(2)
+          IntegerLiteral(3)))))
+      XinuCallStmt(print
+       AbstractList(
+        NotExpr(
+         TrueExpr)))
+      XinuCallStmt(print
+       AbstractList(
+        NotExpr(
+         FalseExpr)))
+      XinuCallStmt(print
+       AbstractList(
+        NotExpr(
+         NotExpr(
+          TrueExpr))))
+      XinuCallStmt(print
+       AbstractList(
+        NotExpr(
+         NotExpr(
+          FalseExpr)))))
+     IntegerLiteral(0))))))
