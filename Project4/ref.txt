@@ -1,0 +1,4 @@
+Parse.ParseException: Encountered " "void" "void "" at line 2, column 12.
+Was expecting:
+    "static" ...
+    
