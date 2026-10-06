@@ -4,6 +4,7 @@ public class FieldExpr extends AssignableExpr
 {
     public Expr record;
     public String field;
+    public int typeIndex;
 
     public FieldExpr(Expr record, String field)
     {

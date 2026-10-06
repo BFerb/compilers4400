@@ -59,7 +59,7 @@ public class ClassBuilder
             buildClass(cd);
 
         for (Absyn.ClassDecl cd : program.classes)
-            buildClass(cd);
+            buildInstance(cd.checktype);
     }
 
     private void buildClass(Absyn.ClassDecl cd)
@@ -73,6 +73,7 @@ public class ClassBuilder
         for (Absyn.VarDecl field : cd.fields)
         {
             Types.Type type = convertType(field.type);
+            field.checktype = type;
             c.fields.put(type, field.name);
         }
 
@@ -94,6 +95,9 @@ public class ClassBuilder
 
             md.checktype = function;
             c.methods.put(function, md.name);
+
+            for (Absyn.VarDecl local : md.locals)
+                local.checktype = convertType(local.type);
         }
 
         c.instance = new Types.OBJECT(c, c.methods, c.fields);
@@ -122,6 +126,12 @@ public class ClassBuilder
             methods.put(field.type, field.name);
 
         c.instance = new Types.OBJECT(c, methods, fields);
+
+        for (Types.FIELD field : c.methods)
+        {
+            Types.FUNCTION function = (Types.FUNCTION)field.type;
+            function.self = c.instance;
+        }
     }
 
     public Symbol.Table<Types.CLASS> getClassEnv()

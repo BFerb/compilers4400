@@ -25,7 +25,7 @@ TYPESRC = $(wildcard Types/*.java)
 SYMSRC = $(wildcard Symbol/*.java)
 
 PARSESRC = Parse/Main.java $(ASTSRC)
-SEMANTSRC = Semant/Main.java Semant/ClassBuilder.java
+SEMANTSRC = Semant/Main.java Semant/ClassBuilder.java Semant/TypeChecker.java Semant/PrintVisitor.java
 
 SEMANTDIR = Semant
 

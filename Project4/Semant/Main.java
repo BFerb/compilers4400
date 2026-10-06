@@ -20,21 +20,14 @@ public class Main
             ClassBuilder builder = new ClassBuilder();
             builder.build(program);
 
-            for (Absyn.ClassDecl cd : program.classes)
-            {
-                Types.CLASS c = cd.checktype;
+            TypeChecker checker = new TypeChecker(builder.getClassEnv());
+            checker.check(program);
 
-                System.out.println("CLASS(" + c.name);
-                System.out.println(" parent = " + c.parent);
-                System.out.println(" methods = " + c.methods);
-                for (Types.FIELD field : c.methods)
-                {
-                    Types.FUNCTION f = (Types.FUNCTION)field.type;
-                    System.out.println(" self = " + f.self);
-                }
-                System.out.println(" fields = " + c.fields);
-                System.out.println(" object = " + c.instance);
-                System.out.println(")");
+            if (!checker.hasErrors())
+            {
+                PrintVisitor printer =
+                    new PrintVisitor(new java.io.PrintWriter(System.out));
+                program.accept(printer);
             }
         }
         catch (Exception e)

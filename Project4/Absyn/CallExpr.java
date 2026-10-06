@@ -7,6 +7,7 @@ public class CallExpr extends Expr
     public Expr receiver;
     public String method;
     public AbstractList<Expr> args;
+    public int typeIndex;
 
     public CallExpr(Expr receiver, String method, AbstractList<Expr> args)
     {
