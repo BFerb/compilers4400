@@ -57,6 +57,9 @@ public class ClassBuilder
 
         for (Absyn.ClassDecl cd : program.classes)
             buildClass(cd);
+
+        for (Absyn.ClassDecl cd : program.classes)
+            buildClass(cd);
     }
 
     private void buildClass(Absyn.ClassDecl cd)
@@ -94,6 +97,31 @@ public class ClassBuilder
         }
 
         c.instance = new Types.OBJECT(c, c.methods, c.fields);
+    }
+
+    private void buildInstance(Types.CLASS c) 
+    { 
+        Types.RECORD fields = new Types.RECORD();
+        Types.RECORD methods = new Types.RECORD();
+
+        if (c.parent != null) 
+        { 
+            buildInstance(c.parent);
+
+            for (Types.FIELD field : c.parent.instance.fields)
+                fields.put(field.type, field.name);
+
+            for (Types.FIELD field : c.parent.instance.methods)
+                methods.put(field.type, field.name);
+        }
+
+        for (Types.FIELD field : c.fields)
+            fields.put(field.type, field.name);
+
+        for (Types.FIELD field : c.methods)
+            methods.put(field.type, field.name);
+
+        c.instance = new Types.OBJECT(c, methods, fields);
     }
 
     public Symbol.Table<Types.CLASS> getClassEnv()

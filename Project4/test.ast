@@ -1,0 +1,30 @@
+Program(
+ AbstractList(
+  ClassDecl(Main null
+   AbstractList()
+   AbstractList(
+    MethodDecl(public_static_void main
+     AbstractList(
+      Formal(ArrayType(IdentifierType(String)) args))
+     AbstractList()
+     AbstractList()
+     IntegerLiteral(0))))
+  ClassDecl(Parent null
+   AbstractList(
+    VarDecl(IntegerType x null))
+   AbstractList(
+    MethodDecl(IntegerType getX
+     AbstractList()
+     AbstractList()
+     AbstractList()
+     IdentifierExpr(x))))
+  ClassDecl(Child Parent
+   AbstractList(
+    VarDecl(BooleanType b null))
+   AbstractList(
+    MethodDecl(IntegerType getY
+     AbstractList(
+      Formal(IntegerType a))
+     AbstractList()
+     AbstractList()
+     IdentifierExpr(a))))))
