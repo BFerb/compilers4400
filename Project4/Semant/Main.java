@@ -20,15 +20,11 @@ public class Main
             ClassBuilder builder = new ClassBuilder();
             builder.build(program);
 
-            TypeChecker checker = new TypeChecker(builder.getClassEnv());
-            checker.check(program);
+            PrintVisitor printer =
+                new PrintVisitor(new java.io.PrintWriter(System.out));
 
-            if (!checker.hasErrors())
-            {
-                PrintVisitor printer =
-                    new PrintVisitor(new java.io.PrintWriter(System.out));
-                program.accept(printer);
-            }
+            for (Absyn.ClassDecl cd : program.classes)
+                cd.checktype.accept(printer);
         }
         catch (Exception e)
         {

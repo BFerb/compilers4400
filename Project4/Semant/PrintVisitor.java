@@ -680,6 +680,8 @@ public void visit(NewObjectExpr ast)
 
         indentCount--;
         out.print(")");
+        out.println();
+        out.flush();
     }
 
 }
