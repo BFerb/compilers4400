@@ -20,6 +20,9 @@ public class Main
             ClassBuilder builder = new ClassBuilder();
             builder.build(program);
 
+            if (builder.hasErrors())
+                return;
+
             TypeChecker checker = new TypeChecker(builder.getClassEnv());
             checker.check(program);
 

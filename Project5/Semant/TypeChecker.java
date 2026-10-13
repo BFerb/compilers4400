@@ -117,7 +117,19 @@ public class TypeChecker
             Types.Type actual = checkExpr(md.returnVal);
 
             if (!compatible(actual, md.checktype.result))
-                error("bad return type in method " + md.name);
+                {
+                    hadError = true;
+                    System.err.print("ERROR incompatible types: " +
+                        md.checktype.result + " required, but " +
+                        actual + " found: ");
+                    java.io.PrintWriter out =
+                        new java.io.PrintWriter(System.err);
+                    PrintVisitor printer = new PrintVisitor(out);
+                    printer.indentCount = 10;
+                    md.returnVal.accept(printer);
+                    out.println();
+                    out.flush();
+                }
         }
 
         vars.endScope();
@@ -141,7 +153,21 @@ public class TypeChecker
             Types.Type rhs = checkExpr(s.value);
 
             if (!compatible(rhs, lhs))
-                error("incompatible assignment");
+            {
+                hadError = true;
+                System.err.print(
+                    "ERROR incompatible types: " + lhs +
+                    " required, but " + rhs + " found: ");
+
+                java.io.PrintWriter out =
+                    new java.io.PrintWriter(System.err);
+
+                PrintVisitor printer = new PrintVisitor(out);
+                printer.indentCount = 10;
+                s.accept(printer);
+                out.println();
+                out.flush();
+            }
         }
         else if (stmt instanceof Absyn.BlockStmt)
         {
@@ -154,7 +180,22 @@ public class TypeChecker
         {
             Absyn.IfStmt s = (Absyn.IfStmt)stmt;
 
-            requireBoolean(checkExpr(s.test), "if condition");
+            Types.Type actual = checkExpr(s.test);
+            if (!(actual instanceof Types.BOOLEAN))
+            {
+                hadError = true;
+                System.err.print(
+                    "ERROR incompatible types: boolean required, but " +
+                    actual + " found: ");
+
+                java.io.PrintWriter out =
+                    new java.io.PrintWriter(System.err);
+                PrintVisitor printer = new PrintVisitor(out);
+                printer.indentCount = 10;
+                s.accept(printer);
+                out.println();
+                out.flush();
+            }
             checkStmt(s.thenStmt);
             checkStmt(s.elseStmt);
         }
@@ -162,7 +203,22 @@ public class TypeChecker
         {
             Absyn.WhileStmt s = (Absyn.WhileStmt)stmt;
 
-            requireBoolean(checkExpr(s.test), "while condition");
+            Types.Type actual = checkExpr(s.test);
+            if (!(actual instanceof Types.BOOLEAN))
+            {
+                hadError = true;
+                System.err.print(
+                    "ERROR incompatible types: boolean required, but " +
+                    actual + " found: ");
+
+                java.io.PrintWriter out =
+                    new java.io.PrintWriter(System.err);
+                PrintVisitor printer = new PrintVisitor(out);
+                printer.indentCount = 10;
+                s.accept(printer);
+                out.println();
+                out.flush();
+            }
             checkStmt(s.body);
         }
         else if (stmt instanceof Absyn.XinuCallStmt)
@@ -274,7 +330,20 @@ public class TypeChecker
             Absyn.ArrayExpr e = (Absyn.ArrayExpr)expr;
 
             Types.Type arrayType = checkExpr(e.array);
-            requireInt(checkExpr(e.index), "array index");
+            Types.Type indexType = checkExpr(e.index);
+            if (!(indexType instanceof Types.INT))
+            {
+                hadError = true;
+                System.err.print("ERROR incompatible types: int required, but " +
+                    indexType + " found: ");
+                java.io.PrintWriter out =
+                    new java.io.PrintWriter(System.err);
+                PrintVisitor printer = new PrintVisitor(out);
+                printer.indentCount = 10;
+                e.index.accept(printer);
+                out.println();
+                out.flush();
+            }
 
             if (!(arrayType instanceof Types.ARRAY))
             {
@@ -348,6 +417,7 @@ public class TypeChecker
             return new Types.NIL();
         }
 
+        expr.typeIndex = field.index;
         return field.type;
     }
 
@@ -388,14 +458,41 @@ public class TypeChecker
         while (formals.hasNext() && actuals.hasNext())
         {
             Types.FIELD formal = formals.next();
-            Types.Type actual = checkExpr(actuals.next());
+            Absyn.Expr argument = actuals.next();
+            Types.Type actual = checkExpr(argument);
 
             if (!compatible(actual, formal.type))
-                error("bad argument type in call to " + expr.method);
+            {
+                hadError = true;
+                System.err.print("ERROR incompatible types: " +
+                    formal.type + " required, but " +
+                    actual + " found: ");
+                java.io.PrintWriter out =
+                    new java.io.PrintWriter(System.err);
+                PrintVisitor printer = new PrintVisitor(out);
+                printer.indentCount = 10;
+                argument.accept(printer);
+                out.println();
+                out.flush();
+            }
         }
 
         if (formals.hasNext() || actuals.hasNext())
-            error("wrong number of arguments in call to " + expr.method);
+            {
+                hadError = true;
+                System.err.print("ERROR mismatch in number of arguments: ");
+                java.io.PrintWriter out =
+                    new java.io.PrintWriter(System.err);
+                PrintVisitor printer = new PrintVisitor(out);
+                printer.indentCount = 10;
+                out.print("\n          CallExpr(");
+                printer.indentCount = 11;
+                expr.receiver.accept(printer);
+                out.print("\n           " + expr.method);
+                printer.visit(expr.args);
+                out.println(")");
+                out.flush();
+            }
 
         return function.result;
     }

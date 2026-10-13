@@ -27,6 +27,23 @@ public class RECORD extends Type implements Iterable<FIELD>
 		return map.put(name, f);
     }
 
+
+    public FIELD replace(Type type, String name)
+    {
+        FIELD old = map.get(name);
+
+        if (old == null)
+            return put(type, name);
+
+        FIELD replacement = new FIELD(type, name, old.index);
+
+        int position = fields.indexOf(old);
+        fields.set(position, replacement);
+        map.put(name, replacement);
+
+        return old;
+    }
+
     public FIELD get(String name)
     {
 		return map.get(name);
