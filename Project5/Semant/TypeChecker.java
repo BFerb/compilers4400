@@ -390,6 +390,7 @@ public class TypeChecker extends TypeCheckerVisitorAdapter
 
         if (receiver instanceof Types.ARRAY && expr.field.equals("length"))
         {
+            expr.typeIndex = -1;
             return new Types.INT();
         }
 

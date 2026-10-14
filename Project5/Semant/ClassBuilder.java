@@ -200,7 +200,8 @@ public class ClassBuilder
                 local.checktype = convertType(local.type);
         }
 
-        c.instance = new Types.OBJECT(c, c.methods, c.fields);
+        c.instance.methods = c.methods;
+        c.instance.fields = c.fields;
     }
 
 
@@ -285,7 +286,8 @@ public class ClassBuilder
             }
         }
 
-        c.instance = new Types.OBJECT(c, methods, fields);
+        c.instance.methods = methods;
+        c.instance.fields = fields;
 
         for (Types.FIELD field : c.methods)
         {
