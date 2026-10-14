@@ -10,12 +10,13 @@ package Semant;
 
 import java.util.Iterator;
 
-public class TypeChecker
+public class TypeChecker extends TypeCheckerVisitorAdapter
 {
     private Symbol.Table<Types.CLASS> classEnv;
     private Symbol.Table<Types.Type> vars;
     private Types.CLASS currentClass;
     private boolean hadError = false;
+    private Types.Type lastType;
 
     public TypeChecker(Symbol.Table<Types.CLASS> classEnv)
     {
