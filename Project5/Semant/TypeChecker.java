@@ -1,5 +1,5 @@
 /**
- * COSC 4400 - Project #4
+ * COSC 4400 - Project #5
  * Performs semantic type checking for MiniJava programs.
  * @authors [Nick Grons, Ben Ferber]
  * Instructor [Dr. Brylow]
@@ -395,6 +395,11 @@ public class TypeChecker
     {
         Types.Type receiver = checkExpr(expr.record);
 
+        if (receiver instanceof Types.ARRAY && expr.field.equals("length"))
+        {
+            return new Types.INT();
+        }
+
         if (!(receiver instanceof Types.OBJECT))
         {
             error("field access on non-object");
@@ -510,7 +515,18 @@ public class TypeChecker
                 Types.Type t = checkExpr(call.args.get(0));
 
                 if (!(t instanceof Types.STRING))
-                    error("Xinu.print expects String");
+                {
+                    hadError = true;
+                    System.err.print("ERROR incompatible types: " +
+                        classEnv.get("String").instance + " required, but " + t + " found: ");
+
+                    java.io.PrintWriter out = new java.io.PrintWriter(System.err);
+                    PrintVisitor printer = new PrintVisitor(out);
+                    printer.indentCount = 10;
+                    call.args.get(0).accept(printer);
+                    out.println();
+                    out.flush();
+                }
             }
         }
         else if (name.equals("printint"))
