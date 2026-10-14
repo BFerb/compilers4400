@@ -370,7 +370,7 @@ public class PrintVisitor implements Visitor, Types.Visitor
         indent();
         out.print(ast.field);
 
-        if (ast.typeIndex != 0)
+        if (ast.typeIndex >= 0)
         {
             indent();
             out.print(ast.typeIndex);

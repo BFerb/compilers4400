@@ -26,8 +26,7 @@ public class TypeChecker extends TypeCheckerVisitorAdapter
 
     public void check(Absyn.Program program)
     {
-        for (Absyn.ClassDecl cd : program.classes)
-            checkClass(cd);
+        program.accept(this);
     }
 
     private void error(String message)
@@ -76,12 +75,31 @@ public class TypeChecker extends TypeCheckerVisitorAdapter
         return new Types.NIL();
     }
 
+    @Override
+    public void visit(Absyn.Program program)
+    {
+        for (Absyn.ClassDecl cd : program.classes)
+            cd.accept(this);
+    }
+
+    @Override
+    public void visit(Absyn.ClassDecl cd)
+    {
+        checkClass(cd);
+    }
+
+    @Override
+    public void visit(Absyn.MethodDecl md)
+    {
+        checkMethod(md);
+    }
+
     private void checkClass(Absyn.ClassDecl cd)
     {
         currentClass = cd.checktype;
 
         for (Absyn.MethodDecl md : cd.methods)
-            checkMethod(md);
+            md.accept(this);
     }
 
     private void checkMethod(Absyn.MethodDecl md)
@@ -268,62 +286,36 @@ public class TypeChecker extends TypeCheckerVisitorAdapter
             expr instanceof Absyn.MulExpr ||
             expr instanceof Absyn.DivExpr)
         {
-            Absyn.BinOpExpr e = (Absyn.BinOpExpr)expr;
-
-            requireInt(checkExpr(e.e1), "arithmetic operand");
-            requireInt(checkExpr(e.e2), "arithmetic operand");
-
-            return new Types.INT();
+            expr.accept(this);
+            return lastType;
         }
 
         if (expr instanceof Absyn.GreaterExpr ||
             expr instanceof Absyn.LesserExpr)
         {
-            Absyn.BinOpExpr e = (Absyn.BinOpExpr)expr;
-
-            requireInt(checkExpr(e.e1), "comparison operand");
-            requireInt(checkExpr(e.e2), "comparison operand");
-
-            return new Types.BOOLEAN();
+            expr.accept(this);
+            return lastType;
         }
 
         if (expr instanceof Absyn.AndExpr ||
             expr instanceof Absyn.OrExpr)
         {
-            Absyn.BinOpExpr e = (Absyn.BinOpExpr)expr;
-
-            requireBoolean(checkExpr(e.e1), "boolean operand");
-            requireBoolean(checkExpr(e.e2), "boolean operand");
-
-            return new Types.BOOLEAN();
+            expr.accept(this);
+            return lastType;
         }
 
         if (expr instanceof Absyn.EqualExpr ||
             expr instanceof Absyn.NotEqExpr)
         {
-            Absyn.BinOpExpr e = (Absyn.BinOpExpr)expr;
-
-            Types.Type left = checkExpr(e.e1);
-            Types.Type right = checkExpr(e.e2);
-
-            if (!compatible(left, right) && !compatible(right, left))
-                error("incompatible equality operands");
-
-            return new Types.BOOLEAN();
+            expr.accept(this);
+            return lastType;
         }
 
-        if (expr instanceof Absyn.NegExpr)
+        if (expr instanceof Absyn.NegExpr ||
+            expr instanceof Absyn.NotExpr)
         {
-            Absyn.NegExpr e = (Absyn.NegExpr)expr;
-            requireInt(checkExpr(e.e), "negation operand");
-            return new Types.INT();
-        }
-
-        if (expr instanceof Absyn.NotExpr)
-        {
-            Absyn.NotExpr e = (Absyn.NotExpr)expr;
-            requireBoolean(checkExpr(e.e), "not operand");
-            return new Types.BOOLEAN();
+            expr.accept(this);
+            return lastType;
         }
 
         if (expr instanceof Absyn.ArrayExpr)
@@ -579,6 +571,104 @@ public class TypeChecker extends TypeCheckerVisitorAdapter
 
         return new Types.NIL();
     }
+
+    @Override
+    public void visit(Absyn.NegExpr e)
+    {
+        requireInt(checkExpr(e.e), "negation operand");
+        lastType = new Types.INT();
+    }
+
+    @Override
+    public void visit(Absyn.NotExpr e)
+    {
+        requireBoolean(checkExpr(e.e), "not operand");
+        lastType = new Types.BOOLEAN();
+    }
+
+    private void equality(Absyn.BinOpExpr e)
+    {
+        Types.Type left = checkExpr(e.e1);
+        Types.Type right = checkExpr(e.e2);
+
+        if (!compatible(left, right) &&
+            !compatible(right, left))
+            error("incompatible equality operands");
+
+        lastType = new Types.BOOLEAN();
+    }
+
+    @Override
+    public void visit(Absyn.EqualExpr e) { equality(e); }
+
+    @Override
+    public void visit(Absyn.NotEqExpr e) { equality(e); }
+
+    private void logical(Absyn.BinOpExpr e)
+    {
+        Types.Type left = checkExpr(e.e1);
+        Types.Type right = checkExpr(e.e2);
+
+        if (!(left instanceof Types.BOOLEAN) ||
+            !(right instanceof Types.BOOLEAN))
+        {
+            String op = e instanceof Absyn.AndExpr ? "&&" : "||";
+            hadError = true;
+            System.err.print("ERROR operator " + op +
+                " cannot be applied to " + left + ", " + right + ": ");
+            java.io.PrintWriter out = new java.io.PrintWriter(System.err);
+            PrintVisitor printer = new PrintVisitor(out);
+            printer.indentCount = 10;
+            e.accept(printer);
+            out.println();
+            out.flush();
+        }
+
+        lastType = new Types.BOOLEAN();
+    }
+
+    @Override
+    public void visit(Absyn.AndExpr e) { logical(e); }
+
+    @Override
+    public void visit(Absyn.OrExpr e) { logical(e); }
+
+    private void comparison(Absyn.BinOpExpr e)
+    {
+        requireInt(checkExpr(e.e1), "comparison operand");
+        requireInt(checkExpr(e.e2), "comparison operand");
+        lastType = new Types.BOOLEAN();
+    }
+
+    @Override public void visit(Absyn.GreaterExpr e) { comparison(e); }
+    @Override public void visit(Absyn.LesserExpr e) { comparison(e); }
+
+    private void arithmetic(Absyn.BinOpExpr e, String op)
+    {
+        Types.Type left = checkExpr(e.e1);
+        Types.Type right = checkExpr(e.e2);
+
+        if (!(left instanceof Types.INT) ||
+            !(right instanceof Types.INT))
+        {
+            hadError = true;
+            System.err.print("ERROR operator " + op +
+                " cannot be applied to " + left + ", " + right + ": ");
+            java.io.PrintWriter out = new java.io.PrintWriter(System.err);
+            PrintVisitor printer = new PrintVisitor(out);
+            printer.indentCount = 10;
+            e.accept(printer);
+            out.println();
+            out.flush();
+        }
+
+        lastType = new Types.INT();
+    }
+
+    @Override public void visit(Absyn.AddExpr e) { arithmetic(e, "+"); }
+    @Override public void visit(Absyn.SubExpr e) { arithmetic(e, "-"); }
+    @Override public void visit(Absyn.MulExpr e) { arithmetic(e, "*"); }
+    @Override public void visit(Absyn.DivExpr e) { arithmetic(e, "/"); }
 
     private void requireInt(Types.Type type, String context)
     {
