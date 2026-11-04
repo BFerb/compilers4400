@@ -1,60 +1,89 @@
+/**
+ * COSC 4400 - Project #7
+ * Translates conditional expressions into IR branches and joins.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 /* Copyright (C) 1997-2003, Purdue Research Foundation of Purdue University.
- * All rights reserved.  */
+ * All rights reserved. */
 package Translate;
+
 import Temp.Temp;
 import Temp.Label;
-
-/**
- * Represents an If-Then-Else Expression, a special case that can be 
- * an expression or statement depending on it's use.
- */
 
 public class IfThenElseExp extends Exp {
     Exp cond, trueExp, falseExp;
 
     IfThenElseExp(Exp cExp, Exp tExp, Exp fExp) {
-	cond = cExp; 
-	trueExp = tExp; 
-	falseExp = fExp;
+        cond = cExp;
+        trueExp = tExp;
+        falseExp = fExp;
+    }
+
+    private static Tree.Stm sequence(Tree.Stm... statements) {
+        Tree.Stm result = null;
+        for (Tree.Stm statement : statements) {
+            if (statement != null) {
+                result = result == null
+                    ? statement : new Tree.SEQ(result, statement);
+            }
+        }
+        return result;
     }
 
     Tree.Stm unCx(Label tt, Label ff) {
-	// TODO: Check for optimizations
-        Tree.Stm condStm = cond.unCx(t, f);
-	return SEQ(condStm,
-		   SEQ(SEQ(LABEL(t), tStm),
-		       SEQ(LABEL(f), fStm)));
+        Label t = new Label();
+        Label f = new Label();
+
+        return sequence(
+            cond.unCx(t, f),
+            new Tree.LABEL(t),
+            trueExp.unCx(tt, ff),
+            new Tree.LABEL(f),
+            falseExp.unCx(tt, ff)
+        );
     }
 
     Tree.Exp unEx() {
-	// TODO: Check for optimizations
         Tree.Exp tExp = trueExp.unEx();
-	Tree.Exp fExp = falseExp.unEx();
-	Temp r = new Temp();
-	Label t = new Label();
-	Label f = new Label();
-	Label join = new Label();
-	return ESEQ(SEQ(SEQ(cond.unCx(t, f),
-			    SEQ(SEQ(LABEL(t),
-				    SEQ(MOVE(TEMP(r), tExp),
-					JUMP(join))),
-				SEQ(LABEL(f),
-				    SEQ(MOVE(TEMP(r), fExp),
-					JUMP(join))))),
-			LABEL(join)),
-		    TEMP(r));
+        Tree.Exp fExp = falseExp.unEx();
+        Temp result = new Temp();
+        Label t = new Label();
+        Label f = new Label();
+        Label join = new Label();
+
+        return new Tree.ESEQ(
+            sequence(
+                cond.unCx(t, f),
+                new Tree.LABEL(t),
+                new Tree.MOVE(new Tree.TEMP(result), tExp),
+                new Tree.JUMP(join),
+                new Tree.LABEL(f),
+                new Tree.MOVE(new Tree.TEMP(result), fExp),
+                new Tree.JUMP(join),
+                new Tree.LABEL(join)
+            ),
+            new Tree.TEMP(result)
+        );
     }
 
     Tree.Stm unNx() {
-	// TODO: Check for optimizations
         Tree.Stm tStm = trueExp.unNx();
-        Tree.Stm fStm = falseExp.unNx();
-	Label t, f, join;
-	t = new Label();
-	f = new Label();
-	join = new Label();
-	tStm = SEQ(SEQ(LABEL(t), tStm), JUMP(join));
-	fStm = SEQ(SEQ(LABEL(f), fStm), JUMP(join));
-	return SEQ(SEQ(cond.unCx(t, f), SEQ(tStm, fStm)), LABEL(join));
+        Tree.Stm fStm = falseExp == null ? null : falseExp.unNx();
+        Label t = new Label();
+        Label f = new Label();
+        Label join = new Label();
+
+        return sequence(
+            cond.unCx(t, f),
+            new Tree.LABEL(t),
+            tStm,
+            new Tree.JUMP(join),
+            new Tree.LABEL(f),
+            fStm,
+            new Tree.JUMP(join),
+            new Tree.LABEL(join)
+        );
     }
 }
