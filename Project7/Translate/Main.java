@@ -19,28 +19,13 @@ public class Main
 {
     public static void main(String args[])
     {
-	java.io.Reader reader = null;
-		
+	java.io.Reader reader = new java.io.BufferedReader(
+            new java.io.InputStreamReader(System.in));
+
+        Absyn.Program parse = null;
 	try
 	{
-	    reader = new java.io.FileReader(args[i]);
-	}
-	catch (java.io.FileNotFoundException fnfe)
-	{
-	    System.err.println("File Not Found: " + args[i]);
-	    System.exit(-1);
-	}
-		
-	if (null == reader)
-	{
-	    System.err.println("Usage: Translate file.java");
-	    System.exit(-2);
-	}   
-		
-	Absyn.Program parse = null;
-	try
-	{
-	    parse = new Parse.ReadTypes(reader).Program();
+	    parse = new Parse.MiniJavaParser(reader).Goal();
 	}
 	catch (ParseException p)
 	{
@@ -48,7 +33,22 @@ public class Main
 	    System.exit(-1);
 	}
 		
-	Translate translate = new Translate(new Arm.ArmFrame());
+	Semant.ClassBuilder builder = new Semant.ClassBuilder();
+        builder.build(parse);
+        if (builder.hasErrors()) {
+            System.exit(1);
+            return;
+        }
+
+        Semant.TypeChecker checker =
+            new Semant.TypeChecker(builder.getClassEnv());
+        checker.check(parse);
+        if (checker.hasErrors()) {
+            System.exit(1);
+            return;
+        }
+
+        Translate translate = new Translate(new Riscv.RiscvFrame());
 	parse.accept(translate);
 		
 	PrintWriter writer = new PrintWriter(System.out);

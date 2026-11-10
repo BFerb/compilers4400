@@ -14,7 +14,9 @@ public abstract class Frame
   /* To store the name of the function as a label*/
   public Temp.Label name;
   /* Formals - This will contain a list of Access*/	
-  public List<Access> formals;	
+  public List<Access> formals;
+  /* Incoming argument locations. */
+  public List<Access> actuals;	
 
   public abstract Frame newFrame(Symbol.Symbol name);
   public abstract Access allocFormal();
@@ -34,6 +36,4 @@ public abstract class Frame
   public abstract void printFrame(java.io.PrintWriter pw);
 
   public abstract void procEntryExit1(List<Tree.Stm> body);
-  public abstract void procEntryExit2(List<Assem.Instr> body);
-  public abstract void procEntryExit3(List<Assem.Instr> body);
 }

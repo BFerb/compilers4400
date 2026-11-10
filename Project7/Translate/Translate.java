@@ -2,6 +2,15 @@
  * All rights reserved.  */
 package Translate;
 
+import Temp.Label;
+import Temp.Temp;
+import Symbol.Symbol;
+import Symbol.Table;
+import Types.CLASS;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Implements translation of abstract syntax expressions
  * into intermediate trees.
@@ -10,6 +19,7 @@ package Translate;
 public class Translate implements Absyn.TreeVisitor 
 {
     public Frame.Frame frame;
+    private CLASS currentClass;
 	
     public Translate(Frame.Frame frame) { this.frame = frame; }
 	
@@ -60,16 +70,68 @@ public class Translate implements Absyn.TreeVisitor
     private HashMap<String, Label>  vtableEnv = new HashMap<String, Label>();
     private Table<Frame.Access>     varEnv    = new Table<Frame.Access>();
 	
+    private Label findMethodLabel(CLASS owner, String name)
+    {
+        for (CLASS c = owner; c != null; c = c.parent) {
+            Label label = methodEnv.get(Symbol.symbol(c.name + "__" + name));
+            if (label != null) {
+                return label;
+            }
+        }
+        throw new IllegalStateException(
+            "No translated method for " + owner.name + "." + name);
+    }
+
     public Exp visit(Absyn.Program n)
     {
-	// TODO
-	return null;
+        frags.clear();
+        classEnv.clear();
+        methodEnv.clear();
+        vtableEnv.clear();
+        staticEnv.clear();
+        strings.clear();
+
+        // Register declarations before resolving inherited methods.
+        for (Absyn.ClassDecl c : n.classes) {
+            if (c.checktype == null) {
+                throw new IllegalStateException("Class has not been checked: " + c.name);
+            }
+            classEnv.put(c.name, c.checktype);
+            vtableEnv.put(c.name, new Label(c.name + "__vtable"));
+            for (Absyn.MethodDecl m : c.methods) {
+                String name = c.name + "__" + m.name;
+                methodEnv.put(Symbol.symbol(name), new Label(name));
+            }
+        }
+
+        // Emit virtual tables in source class order.
+        for (Absyn.ClassDecl c : n.classes) {
+            LinkedList<Label> methods = new LinkedList<Label>();
+            for (Types.FIELD member : c.checktype.instance.methods) {
+                methods.add(findMethodLabel(c.checktype, member.name));
+            }
+            frags.add(new DataFrag(
+                frame.record(vtableEnv.get(c.name), methods)));
+        }
+
+        for (Absyn.ClassDecl c : n.classes) {
+            c.accept(this);
+        }
+        return new Nx(null);
     }
     
-    public Exp visit(Absyn.ClassDecl c) 
+    public Exp visit(Absyn.ClassDecl c)
     {
-	// TODO
-	return null;
+        CLASS previousClass = currentClass;
+        currentClass = c.checktype;
+        try {
+            for (Absyn.MethodDecl m : c.methods) {
+                m.accept(this);
+            }
+        } finally {
+            currentClass = previousClass;
+        }
+        return new Nx(null);
     }
 
     public Exp visit(Absyn.ThreadDecl c) 
@@ -78,28 +140,75 @@ public class Translate implements Absyn.TreeVisitor
 	return null;
     }
 
-    public Exp visit(Absyn.MethodDecl m) 
+    public Exp visit(Absyn.MethodDecl m)
     {
-	// TODO
-	return null;
+        if (currentClass == null) {
+            throw new IllegalStateException("Method has no enclosing class");
+        }
+
+        boolean entry = m.returnType == null
+            && m.name.equals("main") && !(m instanceof Absyn.VoidDecl);
+        String name = entry ? "main" : currentClass.name + "__" + m.name;
+
+        Frame.Frame previousFrame = frame;
+        frame = frame.newFrame(Symbol.symbol(name));
+        varEnv.beginScope();
+        try {
+            // The reference reserves this first slot for every method.
+            varEnv.put("this", frame.allocFormal());
+            for (Absyn.Formal parameter : m.params) {
+                parameter.accept(this);
+            }
+
+            Tree.Stm body = null;
+            for (Absyn.VarDecl local : m.locals) {
+                body = SEQ(body, local.accept(this).unNx());
+            }
+            for (Absyn.Stmt statement : m.stmts) {
+                body = SEQ(body, statement.accept(this).unNx());
+            }
+
+            Tree.Exp result = m.returnVal == null
+                ? CONST(0) : m.returnVal.accept(this).unEx();
+            body = SEQ(body, MOVE(TEMP(frame.RV()), result));
+
+            LinkedList<Tree.Stm> statements = new LinkedList<Tree.Stm>();
+            statements.add(body);
+            frame.procEntryExit1(statements);
+
+            Tree.Stm procedure = null;
+            for (Tree.Stm statement : statements) {
+                procedure = SEQ(procedure, statement);
+            }
+            frags.add(new ProcFrag(procedure, frame));
+        } finally {
+            varEnv.endScope();
+            frame = previousFrame;
+        }
+        return new Nx(null);
     }
 
-    public Exp visit(Absyn.VoidDecl m) 
+    public Exp visit(Absyn.VoidDecl m)
     {
-	// TODO
-	return null;
+        return visit((Absyn.MethodDecl) m);
     }
 
-    public Exp visit(Absyn.Formal f) 
+    public Exp visit(Absyn.Formal f)
     {
-	// TODO
-	return null;
+        Frame.Access access = frame.allocFormal();
+        varEnv.put(f.name, access);
+        return new Nx(null);
     }
 
-    public Exp visit(Absyn.VarDecl v) 
+    public Exp visit(Absyn.VarDecl v)
     {
-	// TODO
-	return null;
+        Frame.Access access = frame.allocLocal();
+        varEnv.put(v.name, access);
+        if (v.init == null) {
+            return new Nx(null);
+        }
+        return new Nx(MOVE(
+            access.exp(frame), v.init.accept(this).unEx()));
     }
 
     public Exp visit(Absyn.BooleanType  t)   { return new Nx(null); }
@@ -107,28 +216,44 @@ public class Translate implements Absyn.TreeVisitor
     public Exp visit(Absyn.ArrayType t)      { return new Nx(null); }
     public Exp visit(Absyn.IdentifierType t) { return new Nx(null); }
 
-    public Exp visit(Absyn.AssignStmt s) 
+    public Exp visit(Absyn.AssignStmt s)
     {
-	// TODO
-	return null;
+        Tree.Exp target = s.target.accept(this).unEx();
+        Tree.Exp value = s.value.accept(this).unEx();
+        return new Nx(MOVE(target, value));
     }
 	
     public Exp visit(Absyn.BlockStmt b)
     {
-	// TODO
-	return null;
+        Tree.Stm body = null;
+        for (Absyn.Stmt statement : b.stmts) {
+            body = SEQ(body, statement.accept(this).unNx());
+        }
+        return new Nx(body);
     }
 
     public Exp visit(Absyn.IfStmt s)
     {
-	// TODO
-	return null;
+        Exp condition = s.test.accept(this);
+        Exp thenPart = s.thenStmt.accept(this);
+        Exp elsePart = s.elseStmt == null
+            ? null : s.elseStmt.accept(this);
+        return new IfThenElseExp(condition, thenPart, elsePart);
     }
 
     public Exp visit(Absyn.WhileStmt s)
     {
-	// TODO
-	return null;
+        Label test = new Label();
+        Label body = new Label();
+        Label done = new Label();
+
+        Tree.Stm code = LABEL(test);
+        code = SEQ(code, s.test.accept(this).unCx(body, done));
+        code = SEQ(code, LABEL(body));
+        code = SEQ(code, s.body.accept(this).unNx());
+        code = SEQ(code, JUMP(test));
+        code = SEQ(code, LABEL(done));
+        return new Nx(code);
     }
 
     private Exp Ex(int op, Absyn.BinOpExpr e) 
@@ -146,7 +271,7 @@ public class Translate implements Absyn.TreeVisitor
     public Exp visit(Absyn.NegExpr e)
     {
 	return new Ex(BINOP(Tree.BINOP.MINUS, 
-			    CONST(0), e.e1.accept(this).unEx()));
+			    CONST(0), e.e.accept(this).unEx()));
     }
 
     public Exp visit(Absyn.AndExpr e) 
@@ -159,8 +284,9 @@ public class Translate implements Absyn.TreeVisitor
 
     public Exp visit(Absyn.OrExpr e)
     {
-	// TODO
-	return null;
+        Exp e1 = e.e1.accept(this);
+        Exp e2 = e.e2.accept(this);
+        return new IfThenElseExp(e1, new Ex(CONST(1)), e2);
     }
 
     private Exp RelCx(int op, Absyn.BinOpExpr e)
@@ -177,7 +303,7 @@ public class Translate implements Absyn.TreeVisitor
 
     public Exp visit(Absyn.NotExpr e)
     {
-        Exp exp = e.e1.accept(this);
+        Exp exp = e.e.accept(this);
         return new IfThenElseExp(exp, new Ex(CONST(0)), new Ex(CONST(1)));
     }
 
@@ -225,7 +351,7 @@ public class Translate implements Absyn.TreeVisitor
     public Exp visit(Absyn.StringLiteral e) 
     {
 	String result = e.value.intern();
-	Label lab = strings.get(u);
+	Label lab = strings.get(result);
 	if (lab != null) return new Ex(NAME(lab));
 	lab = new Label();
 	strings.put(result, lab);
@@ -235,10 +361,13 @@ public class Translate implements Absyn.TreeVisitor
 	return new Ex(NAME(lab));
     }
 
-    public Exp visit(Absyn.ThisExpr e) 
+    public Exp visit(Absyn.ThisExpr e)
     {
-    	// TODO
-	return null;
+        Frame.Access receiver = varEnv.get("this");
+        if (receiver == null) {
+            throw new IllegalStateException("No receiver in the current method");
+        }
+        return new Ex(receiver.exp(frame));
     }
     
     public Exp visit(Absyn.TrueExpr e)
@@ -250,10 +379,14 @@ public class Translate implements Absyn.TreeVisitor
 	return null;
     }
 
-    public Exp visit(Absyn.IdentifierExpr e) 
+    public Exp visit(Absyn.IdentifierExpr e)
     {
-    	// TODO
-	return null;
+        Frame.Access access = varEnv.get(e.name);
+        if (access == null) {
+            throw new IllegalStateException(
+                "No local or parameter location for: " + e.name);
+        }
+        return new Ex(access.exp(frame));
     }
 
     public Exp visit(Absyn.ArrayExpr e)
