@@ -100,7 +100,8 @@ public class ClassBuilder
                 local.checktype = convertType(local.type);
         }
 
-        c.instance = new Types.OBJECT(c, c.methods, c.fields);
+        c.instance.methods = c.methods;
+        c.instance.fields = c.fields;
     }
 
     private void buildInstance(Types.CLASS c) 
@@ -125,7 +126,8 @@ public class ClassBuilder
         for (Types.FIELD field : c.methods)
             methods.put(field.type, field.name);
 
-        c.instance = new Types.OBJECT(c, methods, fields);
+        c.instance.methods = methods;
+        c.instance.fields = fields;
 
         for (Types.FIELD field : c.methods)
         {
