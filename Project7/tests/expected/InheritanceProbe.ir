@@ -1,0 +1,257 @@
+DataFrag(
+	.data
+Main__vtable:
+	.word Main__main
+
+)
+DataFrag(
+	.data
+Parent__vtable:
+	.word Parent__update
+	.word Parent__read
+
+)
+DataFrag(
+	.data
+Child__vtable:
+	.word Child__update
+	.word Parent__read
+
+)
+ProcFrag(
+RiscvFrame(
+main:
+Formals(InReg(t32)
+	InReg(t33)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   MOVE(
+    TEMP(t34)
+    CALL(
+     NAME(_new)
+     CONST(2)
+     NAME(Child__vtable)
+    ))
+   EXP(
+    CALL(
+     NAME(_printint)
+     ESEQ(
+      SEQ(
+       MOVE(
+        TEMP(t35)
+        TEMP(t34))
+       SEQ(
+        CJUMP(EQ
+         TEMP(t35)
+         CONST(0)
+         _BADPTR L0)
+        LABEL(L0)))
+      CALL(
+       MEM(
+        BINOP(PLUS
+         MEM(
+          BINOP(PLUS
+           TEMP(t35)
+           CONST(-4)))
+         CONST(0)))
+       TEMP(t35)
+       CONST(5)
+      ))
+    )))
+  EXP(
+   CALL(
+    NAME(_printint)
+    ESEQ(
+     SEQ(
+      MOVE(
+       TEMP(t36)
+       TEMP(t34))
+      SEQ(
+       CJUMP(EQ
+        TEMP(t36)
+        CONST(0)
+        _BADPTR L1)
+       LABEL(L1)))
+     CALL(
+      MEM(
+       BINOP(PLUS
+        MEM(
+         BINOP(PLUS
+          TEMP(t36)
+          CONST(-4)))
+        CONST(4)))
+      TEMP(t36)
+     ))
+   )))
+ MOVE(
+  TEMP(t10)
+  CONST(0)))
+)
+ProcFrag(
+RiscvFrame(
+Parent__update:
+Formals(InReg(t37)
+	InReg(t38)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ MOVE(
+  ESEQ(
+   SEQ(
+    MOVE(
+     TEMP(t39)
+     TEMP(t37))
+    CJUMP(EQ
+     TEMP(t39)
+     CONST(0)
+     _BADPTR L2))
+   ESEQ(
+    LABEL(L2)
+    MEM(
+     BINOP(PLUS
+      TEMP(t39)
+      CONST(0)))))
+  TEMP(t38))
+ MOVE(
+  TEMP(t10)
+  ESEQ(
+   SEQ(
+    MOVE(
+     TEMP(t40)
+     TEMP(t37))
+    CJUMP(EQ
+     TEMP(t40)
+     CONST(0)
+     _BADPTR L3))
+   ESEQ(
+    LABEL(L3)
+    MEM(
+     BINOP(PLUS
+      TEMP(t40)
+      CONST(0)))))))
+)
+ProcFrag(
+RiscvFrame(
+Parent__read:
+Formals(InReg(t41)
+	)
+Actuals(InReg(t10)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+MOVE(
+ TEMP(t10)
+ ESEQ(
+  SEQ(
+   MOVE(
+    TEMP(t42)
+    TEMP(t41))
+   CJUMP(EQ
+    TEMP(t42)
+    CONST(0)
+    _BADPTR L4))
+  ESEQ(
+   LABEL(L4)
+   MEM(
+    BINOP(PLUS
+     TEMP(t42)
+     CONST(0))))))
+)
+ProcFrag(
+RiscvFrame(
+Child__update:
+Formals(InReg(t43)
+	InReg(t44)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  MOVE(
+   ESEQ(
+    SEQ(
+     MOVE(
+      TEMP(t45)
+      TEMP(t43))
+     CJUMP(EQ
+      TEMP(t45)
+      CONST(0)
+      _BADPTR L5))
+    ESEQ(
+     LABEL(L5)
+     MEM(
+      BINOP(PLUS
+       TEMP(t45)
+       CONST(0)))))
+   TEMP(t44))
+  MOVE(
+   ESEQ(
+    SEQ(
+     MOVE(
+      TEMP(t46)
+      TEMP(t43))
+     CJUMP(EQ
+      TEMP(t46)
+      CONST(0)
+      _BADPTR L6))
+    ESEQ(
+     LABEL(L6)
+     MEM(
+      BINOP(PLUS
+       TEMP(t46)
+       CONST(4)))))
+   BINOP(PLUS
+    TEMP(t44)
+    CONST(1))))
+ MOVE(
+  TEMP(t10)
+  BINOP(PLUS
+   ESEQ(
+    SEQ(
+     MOVE(
+      TEMP(t47)
+      TEMP(t43))
+     CJUMP(EQ
+      TEMP(t47)
+      CONST(0)
+      _BADPTR L7))
+    ESEQ(
+     LABEL(L7)
+     MEM(
+      BINOP(PLUS
+       TEMP(t47)
+       CONST(0)))))
+   ESEQ(
+    SEQ(
+     MOVE(
+      TEMP(t48)
+      TEMP(t43))
+     CJUMP(EQ
+      TEMP(t48)
+      CONST(0)
+      _BADPTR L8))
+    ESEQ(
+     LABEL(L8)
+     MEM(
+      BINOP(PLUS
+       TEMP(t48)
+       CONST(4))))))))
+)

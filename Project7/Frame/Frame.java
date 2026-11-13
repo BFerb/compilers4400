@@ -26,6 +26,9 @@ public abstract class Frame
   /* Function Symbol & Args list */
   public abstract Temp.Temp RV();
 
+  public abstract Tree.Exp externalCall(
+      Symbol.Symbol name, List<Tree.Exp> args);
+
 	
   public abstract String string(Temp.Label label, String value);
   public abstract String record(Temp.Label label, int words);

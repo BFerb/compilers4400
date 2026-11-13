@@ -1,0 +1,39 @@
+DataFrag(
+	.data
+Main__vtable:
+	.word Main__main
+
+)
+ProcFrag(
+RiscvFrame(
+main:
+Formals(InReg(t32)
+	InReg(t33)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   MOVE(
+    TEMP(t34)
+    CALL(
+     NAME(_readint)
+    ))
+   EXP(
+    CALL(
+     NAME(_printint)
+     TEMP(t34)
+    )))
+  EXP(
+   CALL(
+    NAME(_println)
+   )))
+ MOVE(
+  TEMP(t10)
+  CONST(0)))
+)

@@ -309,26 +309,68 @@ public class Translate implements Absyn.TreeVisitor
 
     public Exp visit(Absyn.NewArrayExpr e)
     {
-	// TODO
-	return null;
+        if (e.dimensions.isEmpty() || e.dimensions.getFirst() == null) {
+            throw new IllegalStateException("Array allocation needs a size");
+        }
+
+        // Allocate the outer dimension; trailing [] dimensions remain unallocated.
+        Tree.Exp size = e.dimensions.getFirst().accept(this).unEx();
+        Temp length = new Temp();
+
+        LinkedList<Tree.Exp> arguments = new LinkedList<Tree.Exp>();
+        arguments.add(TEMP(length));
+        arguments.add(TEMP(length));
+
+        return new Ex(ESEQ(
+            MOVE(TEMP(length), size),
+            frame.externalCall(Symbol.symbol("new"), arguments)));
+    }
+
+    private Tree.Exp xinuCall(
+        String name, Iterable<Absyn.Expr> arguments)
+    {
+        LinkedList<Tree.Exp> actuals = new LinkedList<Tree.Exp>();
+        for (Absyn.Expr argument : arguments) {
+            actuals.add(argument.accept(this).unEx());
+        }
+        return frame.externalCall(Symbol.symbol(name), actuals);
     }
 
     public Exp visit(Absyn.XinuCallStmt s)
     {
-	// TODO
-	return null;
+        return new Nx(EXP(xinuCall(s.method, s.args)));
     }
 
     public Exp visit(Absyn.XinuCallExpr e)
     {
-	// TODO
-	return null;
+        return new Ex(xinuCall(e.name, e.args));
     }
 
     public Exp visit(Absyn.CallExpr e)
     {
-	// TODO
-	return null;
+        Tree.Exp receiver = e.receiver.accept(this).unEx();
+        Temp object = new Temp();
+        Label ok = new Label();
+
+        LinkedList<Tree.Exp> arguments = new LinkedList<Tree.Exp>();
+        arguments.add(TEMP(object));
+        for (Absyn.Expr argument : e.args) {
+            arguments.add(argument.accept(this).unEx());
+        }
+
+        Tree.Exp vtable = MEM(BINOP(
+            Tree.BINOP.PLUS, TEMP(object), CONST(-frame.wordSize())));
+        Tree.Exp method = MEM(BINOP(
+            Tree.BINOP.PLUS, vtable, CONST(e.typeIndex * frame.wordSize())));
+
+        Tree.Stm check = SEQ(
+            MOVE(TEMP(object), receiver),
+            SEQ(
+                CJUMP(Tree.CJUMP.EQ, TEMP(object), CONST(0),
+                      frame.badPtr(), ok),
+                LABEL(ok)));
+
+        return new Ex(ESEQ(check, CALL(method, arguments)));
     }
 
     public Exp visit(Absyn.FalseExpr e)
@@ -340,10 +382,24 @@ public class Translate implements Absyn.TreeVisitor
     public Exp visit(Absyn.NullExpr e)
     {   return new Ex(CONST(0));   }
 
-    public Exp visit (Absyn.NewObjectExpr e)
+    public Exp visit(Absyn.NewObjectExpr e)
     {
-    	// TODO
-	return null;
+        if (!(e.type instanceof Absyn.IdentifierType)) {
+            throw new IllegalStateException("Expected a class type for new");
+        }
+
+        String name = ((Absyn.IdentifierType) e.type).id;
+        CLASS type = classEnv.get(name);
+        Label vtable = vtableEnv.get(name);
+        if (type == null || vtable == null) {
+            throw new IllegalStateException(
+                "Missing allocation information for class: " + name);
+        }
+
+        LinkedList<Tree.Exp> arguments = new LinkedList<Tree.Exp>();
+        arguments.add(CONST(type.instance.fields.size()));
+        arguments.add(NAME(vtable));
+        return new Ex(frame.externalCall(Symbol.symbol("new"), arguments));
     }
 
     private HashMap<String, Label> strings = new HashMap<String, Label>();
@@ -399,16 +455,61 @@ public class Translate implements Absyn.TreeVisitor
     public Exp visit(Absyn.IdentifierExpr e)
     {
         Frame.Access access = varEnv.get(e.name);
-        if (access == null) {
-            throw new IllegalStateException(
-                "No local or parameter location for: " + e.name);
+        if (access != null) {
+            return new Ex(access.exp(frame));
         }
-        return new Ex(access.exp(frame));
+
+        if (currentClass != null) {
+            Types.FIELD field = currentClass.instance.fields.get(e.name);
+            if (field != null) {
+                Absyn.FieldExpr selection =
+                    new Absyn.FieldExpr(new Absyn.ThisExpr(), e.name);
+                selection.typeIndex = field.index;
+                return visit(selection);
+            }
+        }
+
+        throw new IllegalStateException(
+            "No variable or field location for: " + e.name);
     }
 
     public Exp visit(Absyn.ArrayExpr e)
     {
-    	// TODO
-	return null;
+        Tree.Exp array = e.array.accept(this).unEx();
+        Tree.Exp index = e.index.accept(this).unEx();
+
+        Temp base = new Temp();
+        Temp subscript = new Temp();
+        Label nonnull = new Label();
+        Label nonnegative = new Label();
+        Label inBounds = new Label();
+
+        Tree.Exp length = MEM(BINOP(
+            Tree.BINOP.PLUS, TEMP(base), CONST(-frame.wordSize())));
+
+        Tree.Stm[] checks = {
+            MOVE(TEMP(base), array),
+            MOVE(TEMP(subscript), index),
+            CJUMP(Tree.CJUMP.EQ, TEMP(base), CONST(0),
+                  frame.badPtr(), nonnull),
+            LABEL(nonnull),
+            CJUMP(Tree.CJUMP.LT, TEMP(subscript), CONST(0),
+                  frame.badSub(), nonnegative),
+            LABEL(nonnegative),
+            CJUMP(Tree.CJUMP.GE, TEMP(subscript), length,
+                  frame.badSub(), inBounds)
+        };
+
+        Tree.Stm code = null;
+        for (int i = checks.length - 1; i >= 0; i--) {
+            code = SEQ(checks[i], code);
+        }
+
+        Tree.Exp element = MEM(BINOP(
+            Tree.BINOP.PLUS,
+            TEMP(base),
+            BINOP(Tree.BINOP.MUL, TEMP(subscript), CONST(frame.wordSize()))));
+
+        return new Ex(ESEQ(code, ESEQ(LABEL(inBounds), element)));
     }
 }
