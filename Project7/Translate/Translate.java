@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Translates checked MiniJava AST nodes into intermediate representation.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 /* Copyright (C) 1997-2003, Purdue Research Foundation of Purdue University.
  * All rights reserved.  */
 package Translate;
@@ -136,8 +143,7 @@ public class Translate implements Absyn.TreeVisitor
 
     public Exp visit(Absyn.ThreadDecl c)
     {
-	// TODO
-	return null;
+        return visit((Absyn.ClassDecl) c);
     }
 
     public Exp visit(Absyn.MethodDecl m)
@@ -204,11 +210,9 @@ public class Translate implements Absyn.TreeVisitor
     {
         Frame.Access access = frame.allocLocal();
         varEnv.put(v.name, access);
-        if (v.init == null) {
-            return new Nx(null);
-        }
-        return new Nx(MOVE(
-            access.exp(frame), v.init.accept(this).unEx()));
+        Tree.Exp value = v.init == null
+            ? CONST(0) : v.init.accept(this).unEx();
+        return new Nx(MOVE(access.exp(frame), value));
     }
 
     public Exp visit(Absyn.BooleanType  t)   { return new Nx(null); }

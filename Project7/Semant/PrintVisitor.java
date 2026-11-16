@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Prints the typed AST, including thread and void-method annotations.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 /* Copyright (C) 2007, Marquette University.  All rights reserved. */
 package Semant;
 
@@ -154,6 +161,9 @@ public class PrintVisitor implements Visitor, Types.Visitor
     out.print(ast.name);
     visit(ast.locals);
     visit(ast.stmts);
+
+    if (ast.checktype != null)
+        ast.checktype.accept(this);
 
     indentCount--;
     out.print(")");
@@ -562,6 +572,9 @@ public void visit(NewObjectExpr ast)
         out.print(ast.name + " " + ast.parent);
         visit(ast.fields);
         visit(ast.methods);
+
+        if (ast.checktype != null)
+            ast.checktype.accept(this);
 
         indentCount--;
         out.print(")");

@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Parses MiniJava source, including line comments, into an AST.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 /* Copyright (C) 2007, 2013, Marquette University.  All rights reserved. */
 /* 2013 Jan 30 : Includes Xinu.* external calls and Concurrency syntax.  */
 
@@ -24,6 +31,7 @@ TOKEN_MGR_DECLS :
 SKIP :
 {
     " " | "\t" | "\n" | "\r" | "\f"
+  | < LINE_COMMENT: "//" (~["\n", "\r"])* >
 }
 
 /************************/

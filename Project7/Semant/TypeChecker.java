@@ -1,5 +1,5 @@
 /**
- * COSC 4400 - Project #5
+ * COSC 4400 - Project #7
  * Performs semantic type checking for MiniJava programs.
  * @authors [Nick Grons, Ben Ferber]
  * Instructor [Dr. Brylow]
@@ -90,6 +90,18 @@ public class TypeChecker extends TypeCheckerVisitorAdapter
 
     @Override
     public void visit(Absyn.MethodDecl md)
+    {
+        checkMethod(md);
+    }
+
+    @Override
+    public void visit(Absyn.ThreadDecl cd)
+    {
+        checkClass(cd);
+    }
+
+    @Override
+    public void visit(Absyn.VoidDecl md)
     {
         checkMethod(md);
     }

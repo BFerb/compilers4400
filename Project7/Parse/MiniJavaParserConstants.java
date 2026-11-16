@@ -11,17 +11,19 @@ public interface MiniJavaParserConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int INT = 48;
+  int LINE_COMMENT = 6;
   /** RegularExpression Id. */
-  int STRING = 49;
+  int INT = 49;
   /** RegularExpression Id. */
-  int ID = 50;
+  int STRING = 50;
   /** RegularExpression Id. */
-  int LETTER = 51;
+  int ID = 51;
   /** RegularExpression Id. */
-  int DIGIT = 52;
+  int LETTER = 52;
   /** RegularExpression Id. */
-  int UNDER = 53;
+  int DIGIT = 53;
+  /** RegularExpression Id. */
+  int UNDER = 54;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -34,6 +36,7 @@ public interface MiniJavaParserConstants {
     "\"\\n\"",
     "\"\\r\"",
     "\"\\f\"",
+    "<LINE_COMMENT>",
     "\"class\"",
     "\"public\"",
     "\"static\"",
@@ -82,7 +85,7 @@ public interface MiniJavaParserConstants {
     "<LETTER>",
     "<DIGIT>",
     "\"_\"",
-    "<token of kind 54>",
+    "<token of kind 55>",
   };
 
 }
