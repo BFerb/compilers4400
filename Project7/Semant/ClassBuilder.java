@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Builds, checks, reads, or prints MiniJava type information.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 package Semant;
 
 import java.util.HashSet;

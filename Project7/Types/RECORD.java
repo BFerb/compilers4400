@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Represents MiniJava types and class member information.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 /* Copyright (C) 1997-2003, Purdue Research Foundation of Purdue University.
  * All rights reserved.  */
 /* Copyright (C) 2007, Marquette University.  All rights reserved. */

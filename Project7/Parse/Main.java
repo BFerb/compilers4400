@@ -1,11 +1,10 @@
 /**
- * COSC 4400 - Project #3
- * Explain briefly the functionality of the program.
- * @authors [Nick Grons, Ben Ferber]
- * Instructor [Dr. Brylow]
- * TA-BOT:MAILTO [nicholas.grons@marquette.edu] [benjamin.ferber@marquette.edu]
+ * COSC 4400 - Project #7
+ * Parses MiniJava source into abstract syntax trees.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
  */
-
 package Parse;
 
 import java.io.Reader;

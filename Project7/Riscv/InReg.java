@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Implements RISC-V frame layout and runtime conventions.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 package Riscv;
 import Temp.Temp;
 

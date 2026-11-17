@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Defines a JavaCC grammar used by the compiler.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 /* Copyright (C) 2007-2013, Marquette University.  All rights reserved. */
 //options { DEBUG_PARSER=true; DEBUG_LOOKAHEAD=true; 
 PARSER_BEGIN(ReadAbsyn)

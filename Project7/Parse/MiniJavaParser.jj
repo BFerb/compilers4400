@@ -38,6 +38,10 @@ SKIP :
 /* Lexical Specification */
 /************************/
 
+MORE : { "/*" : IN_P7_BLOCK_COMMENT }
+<IN_P7_BLOCK_COMMENT> SKIP : { "*/" : DEFAULT }
+<IN_P7_BLOCK_COMMENT> MORE : { <~[]> }
+
 TOKEN :
 {
         /* Reserved words. */

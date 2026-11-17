@@ -174,9 +174,11 @@ public class Translate implements Absyn.TreeVisitor
                 body = SEQ(body, statement.accept(this).unNx());
             }
 
-            Tree.Exp result = m.returnVal == null
-                ? CONST(0) : m.returnVal.accept(this).unEx();
-            body = SEQ(body, MOVE(TEMP(frame.RV()), result));
+            if (!(m instanceof Absyn.VoidDecl)) {
+                Tree.Exp result = m.returnVal == null
+                    ? CONST(0) : m.returnVal.accept(this).unEx();
+                body = SEQ(body, MOVE(TEMP(frame.RV()), result));
+            }
 
             LinkedList<Tree.Stm> statements = new LinkedList<Tree.Stm>();
             statements.add(body);
@@ -247,16 +249,17 @@ public class Translate implements Absyn.TreeVisitor
 
     public Exp visit(Absyn.WhileStmt s)
     {
+        Exp condition = s.test.accept(this);
+        Tree.Stm statements = s.body.accept(this).unNx();
+        Label done = new Label();
         Label test = new Label();
         Label body = new Label();
-        Label done = new Label();
 
-        Tree.Stm code = LABEL(test);
-        code = SEQ(code, s.test.accept(this).unCx(body, done));
-        code = SEQ(code, LABEL(body));
-        code = SEQ(code, s.body.accept(this).unNx());
-        code = SEQ(code, JUMP(test));
-        code = SEQ(code, LABEL(done));
+        Tree.Stm code = SEQ(
+            SEQ(
+                SEQ(LABEL(test), condition.unCx(body, done)),
+                SEQ(SEQ(LABEL(body), statements), JUMP(test))),
+            LABEL(done));
         return new Nx(code);
     }
 
@@ -353,14 +356,14 @@ public class Translate implements Absyn.TreeVisitor
     public Exp visit(Absyn.CallExpr e)
     {
         Tree.Exp receiver = e.receiver.accept(this).unEx();
-        Temp object = new Temp();
-        Label ok = new Label();
-
         LinkedList<Tree.Exp> arguments = new LinkedList<Tree.Exp>();
-        arguments.add(TEMP(object));
         for (Absyn.Expr argument : e.args) {
             arguments.add(argument.accept(this).unEx());
         }
+
+        Temp object = new Temp();
+        Label ok = new Label();
+        arguments.addFirst(TEMP(object));
 
         Tree.Exp vtable = MEM(BINOP(
             Tree.BINOP.PLUS, TEMP(object), CONST(-frame.wordSize())));
@@ -408,9 +411,53 @@ public class Translate implements Absyn.TreeVisitor
 
     private HashMap<String, Label> strings = new HashMap<String, Label>();
 
+    // Our parser retains the source token, including quotes and escapes.
+    private static String literalValue(String token)
+    {
+        if (token.length() < 2 || token.charAt(0) != '"'
+                || token.charAt(token.length() - 1) != '"') {
+            return token;
+        }
+        String text = token.substring(1, token.length() - 1);
+        StringBuilder value = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c != '\\') {
+                value.append(c);
+                continue;
+            }
+            if (++i == text.length()) {
+                throw new IllegalArgumentException("Incomplete string escape");
+            }
+            c = text.charAt(i);
+            switch (c) {
+            case 'b': value.append('\b'); break;
+            case 't': value.append('\t'); break;
+            case 'n': value.append('\n'); break;
+            case 'f': value.append('\f'); break;
+            case 'r': value.append('\r'); break;
+            case '"': case '\'': case '\\': value.append(c); break;
+            default:
+                if (c < '0' || c > '7') {
+                    throw new IllegalArgumentException("Invalid string escape: " + c);
+                }
+                int code = c - '0';
+                int limit = c <= '3' ? 3 : 2;
+                for (int digits = 1; digits < limit && i + 1 < text.length(); digits++) {
+                    char next = text.charAt(i + 1);
+                    if (next < '0' || next > '7') break;
+                    code = code * 8 + next - '0';
+                    i++;
+                }
+                value.append((char) code);
+            }
+        }
+        return value.toString();
+    }
+
     public Exp visit(Absyn.StringLiteral e)
     {
-	String result = e.value.intern();
+	String result = literalValue(e.value).intern();
 	Label lab = strings.get(result);
 	if (lab != null) return new Ex(NAME(lab));
 	lab = new Label();

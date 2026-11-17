@@ -1,3 +1,10 @@
+/**
+ * COSC 4400 - Project #7
+ * Provides symbol interning and scoped symbol tables.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
+ */
 package Symbol;
 
 /** A unique symbol for each distinct name. */

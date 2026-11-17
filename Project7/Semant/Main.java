@@ -1,11 +1,10 @@
 /**
- * COSC 4400 - Project #5
- * Semantic analysis of MiniJava programs
- * @authors [Nick Grons, Ben Ferber]
- * Instructor [Brylow]
- * TA-BOT:MAILTO [nicholas.grons@marquette.edu benjamin.ferber@marquette.edu]
+ * COSC 4400 - Project #7
+ * Builds, checks, reads, or prints MiniJava type information.
+ * @authors Nick Grons, Ben Ferber
+ * Instructor Dr. Brylow
+ * TA-BOT:MAILTO nicholas.grons@marquette.edu benjamin.ferber@marquette.edu
  */
-
 package Semant;
 
 public class Main
