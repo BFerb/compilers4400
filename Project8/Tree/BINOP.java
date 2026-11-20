@@ -23,4 +23,15 @@ public class BINOP extends Exp {
 	LSHIFT=6,RSHIFT=7,ARSHIFT=8,BITAND=9,BITOR=10,BITXOR=11;
 
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
+
+    public LinkedList<Exp> kids() {
+        LinkedList<Exp> children = new LinkedList<Exp>();
+        children.add(left);
+        children.add(right);
+        return children;
+    }
+
+    public Exp build(LinkedList<Exp> kids) {
+        return new BINOP(binop, kids.get(0), kids.get(1));
+    }
 }

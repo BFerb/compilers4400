@@ -24,4 +24,12 @@ public class ESEQ extends Exp
     public ESEQ(Stm s, Exp e) { stm=s; exp=e; }
 
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
+
+    public LinkedList<Exp> kids() {
+        throw new UnsupportedOperationException("Canon handles ESEQ directly");
+    }
+
+    public Exp build(LinkedList<Exp> kids) {
+        throw new UnsupportedOperationException("Canon handles ESEQ directly");
+    }
 }

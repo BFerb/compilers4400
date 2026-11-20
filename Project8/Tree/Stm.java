@@ -18,4 +18,8 @@ import java.util.LinkedList;
 abstract public class Stm implements Hospitable
 {
     public abstract void accept(IntVisitor v, int d);
+
+    public abstract LinkedList<Exp> kids();
+
+    public abstract Stm build(LinkedList<Exp> kids);
 }

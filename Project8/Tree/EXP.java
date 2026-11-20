@@ -21,4 +21,14 @@ public class EXP extends Stm
     public Exp exp; 
     public EXP(Exp e) { exp=e; }
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
+
+    public LinkedList<Exp> kids() {
+        LinkedList<Exp> children = new LinkedList<Exp>();
+        children.add(exp);
+        return children;
+    }
+
+    public Stm build(LinkedList<Exp> kids) {
+        return new EXP(kids.getFirst());
+    }
 }

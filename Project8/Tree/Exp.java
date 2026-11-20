@@ -18,4 +18,8 @@ import Temp.Temp;
 public abstract class Exp implements Hospitable
 {
     public abstract void accept(IntVisitor v, int d);
+
+    public abstract LinkedList<Exp> kids();
+
+    public abstract Exp build(LinkedList<Exp> kids);
 }

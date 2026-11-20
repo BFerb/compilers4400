@@ -23,5 +23,20 @@ public class CALL extends Exp
     public Exp func;
     public List<Exp> args;
     public CALL(Exp f, List<Exp> a) { func=f; args=a; }
+    public LinkedList<Exp> kids() {
+        LinkedList<Exp> children = new LinkedList<Exp>();
+        children.add(func);
+        if (args != null) {
+            children.addAll(args);
+        }
+        return children;
+    }
+
+    public Exp build(LinkedList<Exp> kids) {
+        LinkedList<Exp> arguments = new LinkedList<Exp>(kids);
+        Exp function = arguments.removeFirst();
+        return new CALL(function, arguments);
+    }
+
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
 }

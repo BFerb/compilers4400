@@ -14,7 +14,7 @@ import java.util.List;
 
     public class ReadFrags
     {
-	static private Mips.MipsFrame masterFrame = new Mips.MipsFrame();
+	static private Riscv.RiscvFrame masterFrame = new Riscv.RiscvFrame();
 
 	static Vector<Temp.Temp>  tempVector = null;
 	static Vector<Temp.Label> labelVector = null;
@@ -29,7 +29,7 @@ import java.util.List;
 	    if (null == tempVector)
 		{
 		    tempVector = new Vector<Temp.Temp>();
-		    Temp.Temp[] regs = Mips.MipsFrame.registers;
+		    Temp.Temp[] regs = Riscv.RiscvFrame.registers;
 		    for (int i = 0; i < regs.length; i++)
 			{ tempVector.add(regs[i]); }
 		}
@@ -96,7 +96,7 @@ TOKEN :
 
 | < DATAFRAG: "DataFrag" >
 | < PROCFRAG: "ProcFrag" >
-| < MIPSFRAME:"MipsFrame">
+| < RISCVFRAME:("Riscv.")? "RiscvFrame">
 | < ACTUALS:  "Actuals" >
 | < FORMALS:  "Formals" >
 | < BADPTR:   "BadPtr" >
@@ -219,15 +219,15 @@ Translate.Frag ProcFrag() :
 Frame.Frame Frame() :
 {
     Token name;
-    Mips.MipsFrame frame = null;
+    Riscv.RiscvFrame frame = null;
 
     LinkedList formals = null;
     LinkedList actuals = null;
 }
 {
-	<MIPSFRAME> <LPAREN>
-    name = <ID> <COLON> { frame = (Mips.MipsFrame)(masterFrame.newFrame(
-										Symbol.Symbol.get(name.image))); }
+	<RISCVFRAME> <LPAREN>
+    name = <ID> <COLON> { frame = (Riscv.RiscvFrame)(masterFrame.newFrame(
+										Symbol.Symbol.symbol(name.image))); }
     formals = FormalList() { frame.formals = formals; }
     actuals = FormalList() { frame.actuals = actuals; }
     [ <BADPTR> <LPAREN> name = <ID> <RPAREN>
@@ -274,7 +274,7 @@ Frame.Access InReg() :
 	{
 		 s = t.image.substring(1);
 		 tempNum = parseInt(s);
-		 return new Mips.InReg(getTemp(tempNum));
+		 return new Riscv.InReg(getTemp(tempNum));
 	}
 }
 
@@ -285,7 +285,7 @@ Frame.Access InFrame() :
 {
     <INFRAME> <LPAREN> t = <NUM> <RPAREN>
 	{
-	    return new Mips.InFrame(parseInt(t.image));
+	    return new Riscv.InFrame(parseInt(t.image));
 	}
 }
 

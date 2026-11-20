@@ -21,4 +21,14 @@ public class MEM extends Exp
     public Exp exp;
     public MEM(Exp e) { exp=e; }
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
+
+    public LinkedList<Exp> kids() {
+        LinkedList<Exp> children = new LinkedList<Exp>();
+        children.add(exp);
+        return children;
+    }
+
+    public Exp build(LinkedList<Exp> kids) {
+        return new MEM(kids.getFirst());
+    }
 }
