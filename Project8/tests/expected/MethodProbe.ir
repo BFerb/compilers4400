@@ -1,0 +1,60 @@
+DataFrag(
+	.data
+Main__vtable:
+	.word Main__main
+
+)
+DataFrag(
+	.data
+Worker__vtable:
+	.word Worker__copy
+
+)
+ProcFrag(
+RiscvFrame(
+main:
+Formals(InReg(t32)
+	InReg(t33)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  MOVE(
+   TEMP(t34)
+   CONST(7))
+  MOVE(
+   TEMP(t34)
+   CONST(9)))
+ MOVE(
+  TEMP(t10)
+  CONST(0)))
+)
+ProcFrag(
+RiscvFrame(
+Worker__copy:
+Formals(InReg(t35)
+	InReg(t36)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  MOVE(
+   TEMP(t37)
+   CONST(3))
+  MOVE(
+   TEMP(t37)
+   TEMP(t36)))
+ MOVE(
+  TEMP(t10)
+  TEMP(t37)))
+)

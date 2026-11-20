@@ -1,0 +1,1361 @@
+DataFrag(
+	.data
+BinarySearch__vtable:
+	.word BinarySearch__main
+
+)
+DataFrag(
+	.data
+BS__vtable:
+	.word BS__Start
+	.word BS__Search
+	.word BS__Div
+	.word BS__Compare
+	.word BS__Print
+	.word BS__Init
+
+)
+ProcFrag(
+RiscvFrame(
+main:
+Formals(InReg(t32)
+	InReg(t33)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ EXP(
+  CALL(
+   NAME(_printint)
+   ESEQ(
+    SEQ(
+     MOVE(
+      TEMP(t34)
+      CALL(
+       NAME(_new)
+       CONST(2)
+       NAME(BS__vtable)
+      ))
+     SEQ(
+      CJUMP(EQ
+       TEMP(t34)
+       CONST(0)
+       _BADPTR L0)
+      LABEL(L0)))
+    CALL(
+     MEM(
+      BINOP(PLUS
+       MEM(
+        BINOP(PLUS
+         TEMP(t34)
+         CONST(-4)))
+       CONST(0)))
+     TEMP(t34)
+     CONST(20)
+    ))
+  ))
+ MOVE(
+  TEMP(t10)
+  CONST(0)))
+)
+ProcFrag(
+RiscvFrame(
+BS__Start:
+Formals(InReg(t35)
+	InReg(t36)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   SEQ(
+    SEQ(
+     SEQ(
+      SEQ(
+       SEQ(
+        SEQ(
+         SEQ(
+          SEQ(
+           SEQ(
+            MOVE(
+             TEMP(t37)
+             CONST(0))
+            MOVE(
+             TEMP(t38)
+             CONST(0)))
+           MOVE(
+            TEMP(t37)
+            ESEQ(
+             SEQ(
+              MOVE(
+               TEMP(t39)
+               TEMP(t35))
+              SEQ(
+               CJUMP(EQ
+                TEMP(t39)
+                CONST(0)
+                _BADPTR L1)
+               LABEL(L1)))
+             CALL(
+              MEM(
+               BINOP(PLUS
+                MEM(
+                 BINOP(PLUS
+                  TEMP(t39)
+                  CONST(-4)))
+                CONST(20)))
+              TEMP(t39)
+              TEMP(t36)
+             ))))
+          MOVE(
+           TEMP(t38)
+           ESEQ(
+            SEQ(
+             MOVE(
+              TEMP(t40)
+              TEMP(t35))
+             SEQ(
+              CJUMP(EQ
+               TEMP(t40)
+               CONST(0)
+               _BADPTR L2)
+              LABEL(L2)))
+            CALL(
+             MEM(
+              BINOP(PLUS
+               MEM(
+                BINOP(PLUS
+                 TEMP(t40)
+                 CONST(-4)))
+               CONST(16)))
+             TEMP(t40)
+            ))))
+         SEQ(
+          SEQ(
+           CJUMP(NE
+            ESEQ(
+             SEQ(
+              MOVE(
+               TEMP(t41)
+               TEMP(t35))
+              SEQ(
+               CJUMP(EQ
+                TEMP(t41)
+                CONST(0)
+                _BADPTR L3)
+               LABEL(L3)))
+             CALL(
+              MEM(
+               BINOP(PLUS
+                MEM(
+                 BINOP(PLUS
+                  TEMP(t41)
+                  CONST(-4)))
+                CONST(4)))
+              TEMP(t41)
+              CONST(8)
+             ))
+            CONST(0)
+            L4 L5)
+           SEQ(
+            SEQ(
+             SEQ(
+              LABEL(L4)
+              EXP(
+               CALL(
+                NAME(_printint)
+                CONST(1)
+               )))
+             JUMP(
+              NAME(L6)))
+            SEQ(
+             SEQ(
+              LABEL(L5)
+              EXP(
+               CALL(
+                NAME(_printint)
+                CONST(0)
+               )))
+             JUMP(
+              NAME(L6)))))
+          LABEL(L6)))
+        SEQ(
+         SEQ(
+          CJUMP(NE
+           ESEQ(
+            SEQ(
+             MOVE(
+              TEMP(t42)
+              TEMP(t35))
+             SEQ(
+              CJUMP(EQ
+               TEMP(t42)
+               CONST(0)
+               _BADPTR L7)
+              LABEL(L7)))
+            CALL(
+             MEM(
+              BINOP(PLUS
+               MEM(
+                BINOP(PLUS
+                 TEMP(t42)
+                 CONST(-4)))
+               CONST(4)))
+             TEMP(t42)
+             CONST(19)
+            ))
+           CONST(0)
+           L8 L9)
+          SEQ(
+           SEQ(
+            SEQ(
+             LABEL(L8)
+             EXP(
+              CALL(
+               NAME(_printint)
+               CONST(1)
+              )))
+            JUMP(
+             NAME(L10)))
+           SEQ(
+            SEQ(
+             LABEL(L9)
+             EXP(
+              CALL(
+               NAME(_printint)
+               CONST(0)
+              )))
+            JUMP(
+             NAME(L10)))))
+         LABEL(L10)))
+       SEQ(
+        SEQ(
+         CJUMP(NE
+          ESEQ(
+           SEQ(
+            MOVE(
+             TEMP(t43)
+             TEMP(t35))
+            SEQ(
+             CJUMP(EQ
+              TEMP(t43)
+              CONST(0)
+              _BADPTR L11)
+             LABEL(L11)))
+           CALL(
+            MEM(
+             BINOP(PLUS
+              MEM(
+               BINOP(PLUS
+                TEMP(t43)
+                CONST(-4)))
+              CONST(4)))
+            TEMP(t43)
+            CONST(20)
+           ))
+          CONST(0)
+          L12 L13)
+         SEQ(
+          SEQ(
+           SEQ(
+            LABEL(L12)
+            EXP(
+             CALL(
+              NAME(_printint)
+              CONST(1)
+             )))
+           JUMP(
+            NAME(L14)))
+          SEQ(
+           SEQ(
+            LABEL(L13)
+            EXP(
+             CALL(
+              NAME(_printint)
+              CONST(0)
+             )))
+           JUMP(
+            NAME(L14)))))
+        LABEL(L14)))
+      SEQ(
+       SEQ(
+        CJUMP(NE
+         ESEQ(
+          SEQ(
+           MOVE(
+            TEMP(t44)
+            TEMP(t35))
+           SEQ(
+            CJUMP(EQ
+             TEMP(t44)
+             CONST(0)
+             _BADPTR L15)
+            LABEL(L15)))
+          CALL(
+           MEM(
+            BINOP(PLUS
+             MEM(
+              BINOP(PLUS
+               TEMP(t44)
+               CONST(-4)))
+             CONST(4)))
+           TEMP(t44)
+           CONST(21)
+          ))
+         CONST(0)
+         L16 L17)
+        SEQ(
+         SEQ(
+          SEQ(
+           LABEL(L16)
+           EXP(
+            CALL(
+             NAME(_printint)
+             CONST(1)
+            )))
+          JUMP(
+           NAME(L18)))
+         SEQ(
+          SEQ(
+           LABEL(L17)
+           EXP(
+            CALL(
+             NAME(_printint)
+             CONST(0)
+            )))
+          JUMP(
+           NAME(L18)))))
+       LABEL(L18)))
+     SEQ(
+      SEQ(
+       CJUMP(NE
+        ESEQ(
+         SEQ(
+          MOVE(
+           TEMP(t45)
+           TEMP(t35))
+          SEQ(
+           CJUMP(EQ
+            TEMP(t45)
+            CONST(0)
+            _BADPTR L19)
+           LABEL(L19)))
+         CALL(
+          MEM(
+           BINOP(PLUS
+            MEM(
+             BINOP(PLUS
+              TEMP(t45)
+              CONST(-4)))
+            CONST(4)))
+          TEMP(t45)
+          CONST(37)
+         ))
+        CONST(0)
+        L20 L21)
+       SEQ(
+        SEQ(
+         SEQ(
+          LABEL(L20)
+          EXP(
+           CALL(
+            NAME(_printint)
+            CONST(1)
+           )))
+         JUMP(
+          NAME(L22)))
+        SEQ(
+         SEQ(
+          LABEL(L21)
+          EXP(
+           CALL(
+            NAME(_printint)
+            CONST(0)
+           )))
+         JUMP(
+          NAME(L22)))))
+      LABEL(L22)))
+    SEQ(
+     SEQ(
+      CJUMP(NE
+       ESEQ(
+        SEQ(
+         MOVE(
+          TEMP(t46)
+          TEMP(t35))
+         SEQ(
+          CJUMP(EQ
+           TEMP(t46)
+           CONST(0)
+           _BADPTR L23)
+          LABEL(L23)))
+        CALL(
+         MEM(
+          BINOP(PLUS
+           MEM(
+            BINOP(PLUS
+             TEMP(t46)
+             CONST(-4)))
+           CONST(4)))
+         TEMP(t46)
+         CONST(38)
+        ))
+       CONST(0)
+       L24 L25)
+      SEQ(
+       SEQ(
+        SEQ(
+         LABEL(L24)
+         EXP(
+          CALL(
+           NAME(_printint)
+           CONST(1)
+          )))
+        JUMP(
+         NAME(L26)))
+       SEQ(
+        SEQ(
+         LABEL(L25)
+         EXP(
+          CALL(
+           NAME(_printint)
+           CONST(0)
+          )))
+        JUMP(
+         NAME(L26)))))
+     LABEL(L26)))
+   SEQ(
+    SEQ(
+     CJUMP(NE
+      ESEQ(
+       SEQ(
+        MOVE(
+         TEMP(t47)
+         TEMP(t35))
+        SEQ(
+         CJUMP(EQ
+          TEMP(t47)
+          CONST(0)
+          _BADPTR L27)
+         LABEL(L27)))
+       CALL(
+        MEM(
+         BINOP(PLUS
+          MEM(
+           BINOP(PLUS
+            TEMP(t47)
+            CONST(-4)))
+          CONST(4)))
+        TEMP(t47)
+        CONST(39)
+       ))
+      CONST(0)
+      L28 L29)
+     SEQ(
+      SEQ(
+       SEQ(
+        LABEL(L28)
+        EXP(
+         CALL(
+          NAME(_printint)
+          CONST(1)
+         )))
+       JUMP(
+        NAME(L30)))
+      SEQ(
+       SEQ(
+        LABEL(L29)
+        EXP(
+         CALL(
+          NAME(_printint)
+          CONST(0)
+         )))
+       JUMP(
+        NAME(L30)))))
+    LABEL(L30)))
+  SEQ(
+   SEQ(
+    CJUMP(NE
+     ESEQ(
+      SEQ(
+       MOVE(
+        TEMP(t48)
+        TEMP(t35))
+       SEQ(
+        CJUMP(EQ
+         TEMP(t48)
+         CONST(0)
+         _BADPTR L31)
+        LABEL(L31)))
+      CALL(
+       MEM(
+        BINOP(PLUS
+         MEM(
+          BINOP(PLUS
+           TEMP(t48)
+           CONST(-4)))
+         CONST(4)))
+       TEMP(t48)
+       CONST(50)
+      ))
+     CONST(0)
+     L32 L33)
+    SEQ(
+     SEQ(
+      SEQ(
+       LABEL(L32)
+       EXP(
+        CALL(
+         NAME(_printint)
+         CONST(1)
+        )))
+      JUMP(
+       NAME(L34)))
+     SEQ(
+      SEQ(
+       LABEL(L33)
+       EXP(
+        CALL(
+         NAME(_printint)
+         CONST(0)
+        )))
+      JUMP(
+       NAME(L34)))))
+   LABEL(L34)))
+ MOVE(
+  TEMP(t10)
+  CONST(999)))
+)
+ProcFrag(
+RiscvFrame(
+BS__Search:
+Formals(InReg(t49)
+	InReg(t50)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   SEQ(
+    SEQ(
+     SEQ(
+      SEQ(
+       SEQ(
+        SEQ(
+         SEQ(
+          SEQ(
+           SEQ(
+            SEQ(
+             SEQ(
+              SEQ(
+               MOVE(
+                TEMP(t51)
+                CONST(0))
+               MOVE(
+                TEMP(t52)
+                CONST(0)))
+              MOVE(
+               TEMP(t53)
+               CONST(0)))
+             MOVE(
+              TEMP(t54)
+              CONST(0)))
+            MOVE(
+             TEMP(t55)
+             CONST(0)))
+           MOVE(
+            TEMP(t56)
+            CONST(0)))
+          MOVE(
+           TEMP(t57)
+           CONST(0)))
+         MOVE(
+          TEMP(t56)
+          CONST(0)))
+        MOVE(
+         TEMP(t51)
+         CONST(0)))
+       MOVE(
+        TEMP(t52)
+        ESEQ(
+         SEQ(
+          MOVE(
+           TEMP(t59)
+           ESEQ(
+            SEQ(
+             MOVE(
+              TEMP(t58)
+              TEMP(t49))
+             CJUMP(EQ
+              TEMP(t58)
+              CONST(0)
+              _BADPTR L35))
+            ESEQ(
+             LABEL(L35)
+             MEM(
+              BINOP(PLUS
+               TEMP(t58)
+               CONST(0))))))
+          CJUMP(EQ
+           TEMP(t59)
+           CONST(0)
+           _BADPTR L36))
+         ESEQ(
+          LABEL(L36)
+          MEM(
+           BINOP(PLUS
+            TEMP(t59)
+            CONST(-4)))))))
+      MOVE(
+       TEMP(t52)
+       BINOP(MINUS
+        TEMP(t52)
+        CONST(1))))
+     MOVE(
+      TEMP(t53)
+      CONST(0)))
+    MOVE(
+     TEMP(t54)
+     CONST(1)))
+   SEQ(
+    SEQ(
+     SEQ(
+      LABEL(L53)
+      CJUMP(NE
+       TEMP(t54)
+       CONST(0)
+       L54 L52))
+     SEQ(
+      SEQ(
+       LABEL(L54)
+       SEQ(
+        SEQ(
+         SEQ(
+          SEQ(
+           SEQ(
+            MOVE(
+             TEMP(t55)
+             BINOP(PLUS
+              TEMP(t53)
+              TEMP(t52)))
+            MOVE(
+             TEMP(t55)
+             ESEQ(
+              SEQ(
+               MOVE(
+                TEMP(t60)
+                TEMP(t49))
+               SEQ(
+                CJUMP(EQ
+                 TEMP(t60)
+                 CONST(0)
+                 _BADPTR L37)
+                LABEL(L37)))
+              CALL(
+               MEM(
+                BINOP(PLUS
+                 MEM(
+                  BINOP(PLUS
+                   TEMP(t60)
+                   CONST(-4)))
+                 CONST(8)))
+               TEMP(t60)
+               TEMP(t55)
+              ))))
+           MOVE(
+            TEMP(t56)
+            ESEQ(
+             SEQ(
+              MOVE(
+               TEMP(t62)
+               ESEQ(
+                SEQ(
+                 MOVE(
+                  TEMP(t61)
+                  TEMP(t49))
+                 CJUMP(EQ
+                  TEMP(t61)
+                  CONST(0)
+                  _BADPTR L38))
+                ESEQ(
+                 LABEL(L38)
+                 MEM(
+                  BINOP(PLUS
+                   TEMP(t61)
+                   CONST(0))))))
+              SEQ(
+               MOVE(
+                TEMP(t63)
+                TEMP(t55))
+               SEQ(
+                CJUMP(EQ
+                 TEMP(t62)
+                 CONST(0)
+                 _BADPTR L39)
+                SEQ(
+                 LABEL(L39)
+                 SEQ(
+                  CJUMP(LT
+                   TEMP(t63)
+                   CONST(0)
+                   _BADSUB L40)
+                  SEQ(
+                   LABEL(L40)
+                   CJUMP(GE
+                    TEMP(t63)
+                    MEM(
+                     BINOP(PLUS
+                      TEMP(t62)
+                      CONST(-4)))
+                    _BADSUB L41)))))))
+             ESEQ(
+              LABEL(L41)
+              MEM(
+               BINOP(PLUS
+                TEMP(t62)
+                BINOP(MUL
+                 TEMP(t63)
+                 CONST(4))))))))
+          SEQ(
+           SEQ(
+            CJUMP(LT
+             TEMP(t50)
+             TEMP(t56)
+             L42 L43)
+            SEQ(
+             SEQ(
+              SEQ(
+               LABEL(L42)
+               MOVE(
+                TEMP(t52)
+                BINOP(MINUS
+                 TEMP(t55)
+                 CONST(1))))
+              JUMP(
+               NAME(L44)))
+             SEQ(
+              SEQ(
+               LABEL(L43)
+               MOVE(
+                TEMP(t53)
+                BINOP(PLUS
+                 TEMP(t55)
+                 CONST(1))))
+              JUMP(
+               NAME(L44)))))
+           LABEL(L44)))
+         SEQ(
+          SEQ(
+           CJUMP(NE
+            ESEQ(
+             SEQ(
+              MOVE(
+               TEMP(t64)
+               TEMP(t49))
+              SEQ(
+               CJUMP(EQ
+                TEMP(t64)
+                CONST(0)
+                _BADPTR L45)
+               LABEL(L45)))
+             CALL(
+              MEM(
+               BINOP(PLUS
+                MEM(
+                 BINOP(PLUS
+                  TEMP(t64)
+                  CONST(-4)))
+                CONST(12)))
+              TEMP(t64)
+              TEMP(t56)
+              TEMP(t50)
+             ))
+            CONST(0)
+            L46 L47)
+           SEQ(
+            SEQ(
+             SEQ(
+              LABEL(L46)
+              MOVE(
+               TEMP(t54)
+               CONST(0)))
+             JUMP(
+              NAME(L48)))
+            SEQ(
+             SEQ(
+              LABEL(L47)
+              MOVE(
+               TEMP(t54)
+               CONST(1)))
+             JUMP(
+              NAME(L48)))))
+          LABEL(L48)))
+        SEQ(
+         SEQ(
+          CJUMP(LT
+           TEMP(t52)
+           TEMP(t53)
+           L49 L50)
+          SEQ(
+           SEQ(
+            SEQ(
+             LABEL(L49)
+             MOVE(
+              TEMP(t54)
+              CONST(0)))
+            JUMP(
+             NAME(L51)))
+           SEQ(
+            SEQ(
+             LABEL(L50)
+             MOVE(
+              TEMP(t57)
+              CONST(0)))
+            JUMP(
+             NAME(L51)))))
+         LABEL(L51))))
+      JUMP(
+       NAME(L53))))
+    LABEL(L52)))
+  SEQ(
+   SEQ(
+    CJUMP(NE
+     ESEQ(
+      SEQ(
+       MOVE(
+        TEMP(t65)
+        TEMP(t49))
+       SEQ(
+        CJUMP(EQ
+         TEMP(t65)
+         CONST(0)
+         _BADPTR L55)
+        LABEL(L55)))
+      CALL(
+       MEM(
+        BINOP(PLUS
+         MEM(
+          BINOP(PLUS
+           TEMP(t65)
+           CONST(-4)))
+         CONST(12)))
+       TEMP(t65)
+       TEMP(t56)
+       TEMP(t50)
+      ))
+     CONST(0)
+     L56 L57)
+    SEQ(
+     SEQ(
+      SEQ(
+       LABEL(L56)
+       MOVE(
+        TEMP(t51)
+        CONST(1)))
+      JUMP(
+       NAME(L58)))
+     SEQ(
+      SEQ(
+       LABEL(L57)
+       MOVE(
+        TEMP(t51)
+        CONST(0)))
+      JUMP(
+       NAME(L58)))))
+   LABEL(L58)))
+ MOVE(
+  TEMP(t10)
+  TEMP(t51)))
+)
+ProcFrag(
+RiscvFrame(
+BS__Div:
+Formals(InReg(t66)
+	InReg(t67)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   SEQ(
+    SEQ(
+     SEQ(
+      SEQ(
+       MOVE(
+        TEMP(t68)
+        CONST(0))
+       MOVE(
+        TEMP(t69)
+        CONST(0)))
+      MOVE(
+       TEMP(t70)
+       CONST(0)))
+     MOVE(
+      TEMP(t68)
+      CONST(0)))
+    MOVE(
+     TEMP(t69)
+     CONST(0)))
+   MOVE(
+    TEMP(t70)
+    BINOP(MINUS
+     TEMP(t67)
+     CONST(1))))
+  SEQ(
+   SEQ(
+    SEQ(
+     LABEL(L60)
+     CJUMP(LT
+      TEMP(t69)
+      TEMP(t70)
+      L61 L59))
+    SEQ(
+     SEQ(
+      LABEL(L61)
+      SEQ(
+       MOVE(
+        TEMP(t68)
+        BINOP(PLUS
+         TEMP(t68)
+         CONST(1)))
+       MOVE(
+        TEMP(t69)
+        BINOP(PLUS
+         TEMP(t69)
+         CONST(2)))))
+     JUMP(
+      NAME(L60))))
+   LABEL(L59)))
+ MOVE(
+  TEMP(t10)
+  TEMP(t68)))
+)
+ProcFrag(
+RiscvFrame(
+BS__Compare:
+Formals(InReg(t71)
+	InReg(t72)
+	InReg(t73)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	InReg(t12)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   SEQ(
+    SEQ(
+     MOVE(
+      TEMP(t74)
+      CONST(0))
+     MOVE(
+      TEMP(t75)
+      CONST(0)))
+    MOVE(
+     TEMP(t74)
+     CONST(0)))
+   MOVE(
+    TEMP(t75)
+    BINOP(PLUS
+     TEMP(t73)
+     CONST(1))))
+  SEQ(
+   SEQ(
+    CJUMP(LT
+     TEMP(t72)
+     TEMP(t73)
+     L65 L66)
+    SEQ(
+     SEQ(
+      SEQ(
+       LABEL(L65)
+       MOVE(
+        TEMP(t74)
+        CONST(0)))
+      JUMP(
+       NAME(L67)))
+     SEQ(
+      SEQ(
+       LABEL(L66)
+       SEQ(
+        SEQ(
+         CJUMP(LT
+          TEMP(t72)
+          TEMP(t75)
+          L63 L62)
+         SEQ(
+          SEQ(
+           SEQ(
+            LABEL(L62)
+            MOVE(
+             TEMP(t74)
+             CONST(0)))
+           JUMP(
+            NAME(L64)))
+          SEQ(
+           SEQ(
+            LABEL(L63)
+            MOVE(
+             TEMP(t74)
+             CONST(1)))
+           JUMP(
+            NAME(L64)))))
+        LABEL(L64)))
+      JUMP(
+       NAME(L67)))))
+   LABEL(L67)))
+ MOVE(
+  TEMP(t10)
+  TEMP(t74)))
+)
+ProcFrag(
+RiscvFrame(
+BS__Print:
+Formals(InReg(t76)
+	)
+Actuals(InReg(t10)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   SEQ(
+    MOVE(
+     TEMP(t77)
+     CONST(0))
+    MOVE(
+     TEMP(t77)
+     CONST(1)))
+   SEQ(
+    SEQ(
+     SEQ(
+      LABEL(L74)
+      CJUMP(LT
+       TEMP(t77)
+       ESEQ(
+        SEQ(
+         MOVE(
+          TEMP(t78)
+          TEMP(t76))
+         CJUMP(EQ
+          TEMP(t78)
+          CONST(0)
+          _BADPTR L68))
+        ESEQ(
+         LABEL(L68)
+         MEM(
+          BINOP(PLUS
+           TEMP(t78)
+           CONST(4)))))
+       L75 L73))
+     SEQ(
+      SEQ(
+       LABEL(L75)
+       SEQ(
+        EXP(
+         CALL(
+          NAME(_printint)
+          ESEQ(
+           SEQ(
+            MOVE(
+             TEMP(t80)
+             ESEQ(
+              SEQ(
+               MOVE(
+                TEMP(t79)
+                TEMP(t76))
+               CJUMP(EQ
+                TEMP(t79)
+                CONST(0)
+                _BADPTR L69))
+              ESEQ(
+               LABEL(L69)
+               MEM(
+                BINOP(PLUS
+                 TEMP(t79)
+                 CONST(0))))))
+            SEQ(
+             MOVE(
+              TEMP(t81)
+              TEMP(t77))
+             SEQ(
+              CJUMP(EQ
+               TEMP(t80)
+               CONST(0)
+               _BADPTR L70)
+              SEQ(
+               LABEL(L70)
+               SEQ(
+                CJUMP(LT
+                 TEMP(t81)
+                 CONST(0)
+                 _BADSUB L71)
+                SEQ(
+                 LABEL(L71)
+                 CJUMP(GE
+                  TEMP(t81)
+                  MEM(
+                   BINOP(PLUS
+                    TEMP(t80)
+                    CONST(-4)))
+                  _BADSUB L72)))))))
+           ESEQ(
+            LABEL(L72)
+            MEM(
+             BINOP(PLUS
+              TEMP(t80)
+              BINOP(MUL
+               TEMP(t81)
+               CONST(4))))))
+         ))
+        MOVE(
+         TEMP(t77)
+         BINOP(PLUS
+          TEMP(t77)
+          CONST(1)))))
+      JUMP(
+       NAME(L74))))
+    LABEL(L73)))
+  EXP(
+   CALL(
+    NAME(_printint)
+    CONST(99999)
+   )))
+ MOVE(
+  TEMP(t10)
+  CONST(0)))
+)
+ProcFrag(
+RiscvFrame(
+BS__Init:
+Formals(InReg(t82)
+	InReg(t83)
+	)
+Actuals(InReg(t10)
+	InReg(t11)
+	)
+BadPtr(_BADPTR)
+BadSub(_BADSUB)
+)
+SEQ(
+ SEQ(
+  SEQ(
+   SEQ(
+    SEQ(
+     SEQ(
+      SEQ(
+       SEQ(
+        SEQ(
+         MOVE(
+          TEMP(t84)
+          CONST(0))
+         MOVE(
+          TEMP(t85)
+          CONST(0)))
+        MOVE(
+         TEMP(t86)
+         CONST(0)))
+       MOVE(
+        TEMP(t87)
+        CONST(0)))
+      MOVE(
+       ESEQ(
+        SEQ(
+         MOVE(
+          TEMP(t88)
+          TEMP(t82))
+         CJUMP(EQ
+          TEMP(t88)
+          CONST(0)
+          _BADPTR L76))
+        ESEQ(
+         LABEL(L76)
+         MEM(
+          BINOP(PLUS
+           TEMP(t88)
+           CONST(4)))))
+       TEMP(t83)))
+     MOVE(
+      ESEQ(
+       SEQ(
+        MOVE(
+         TEMP(t89)
+         TEMP(t82))
+        CJUMP(EQ
+         TEMP(t89)
+         CONST(0)
+         _BADPTR L77))
+       ESEQ(
+        LABEL(L77)
+        MEM(
+         BINOP(PLUS
+          TEMP(t89)
+          CONST(0)))))
+      ESEQ(
+       MOVE(
+        TEMP(t90)
+        TEMP(t83))
+       CALL(
+        NAME(_new)
+        TEMP(t90)
+        TEMP(t90)
+       ))))
+    MOVE(
+     TEMP(t84)
+     CONST(1)))
+   MOVE(
+    TEMP(t85)
+    BINOP(PLUS
+     ESEQ(
+      SEQ(
+       MOVE(
+        TEMP(t91)
+        TEMP(t82))
+       CJUMP(EQ
+        TEMP(t91)
+        CONST(0)
+        _BADPTR L78))
+      ESEQ(
+       LABEL(L78)
+       MEM(
+        BINOP(PLUS
+         TEMP(t91)
+         CONST(4)))))
+     CONST(1))))
+  SEQ(
+   SEQ(
+    SEQ(
+     LABEL(L85)
+     CJUMP(LT
+      TEMP(t84)
+      ESEQ(
+       SEQ(
+        MOVE(
+         TEMP(t92)
+         TEMP(t82))
+        CJUMP(EQ
+         TEMP(t92)
+         CONST(0)
+         _BADPTR L79))
+       ESEQ(
+        LABEL(L79)
+        MEM(
+         BINOP(PLUS
+          TEMP(t92)
+          CONST(4)))))
+      L86 L84))
+    SEQ(
+     SEQ(
+      LABEL(L86)
+      SEQ(
+       SEQ(
+        SEQ(
+         SEQ(
+          MOVE(
+           TEMP(t87)
+           BINOP(MUL
+            CONST(2)
+            TEMP(t84)))
+          MOVE(
+           TEMP(t86)
+           BINOP(MINUS
+            TEMP(t85)
+            CONST(3))))
+         MOVE(
+          ESEQ(
+           SEQ(
+            MOVE(
+             TEMP(t94)
+             ESEQ(
+              SEQ(
+               MOVE(
+                TEMP(t93)
+                TEMP(t82))
+               CJUMP(EQ
+                TEMP(t93)
+                CONST(0)
+                _BADPTR L80))
+              ESEQ(
+               LABEL(L80)
+               MEM(
+                BINOP(PLUS
+                 TEMP(t93)
+                 CONST(0))))))
+            SEQ(
+             MOVE(
+              TEMP(t95)
+              TEMP(t84))
+             SEQ(
+              CJUMP(EQ
+               TEMP(t94)
+               CONST(0)
+               _BADPTR L81)
+              SEQ(
+               LABEL(L81)
+               SEQ(
+                CJUMP(LT
+                 TEMP(t95)
+                 CONST(0)
+                 _BADSUB L82)
+                SEQ(
+                 LABEL(L82)
+                 CJUMP(GE
+                  TEMP(t95)
+                  MEM(
+                   BINOP(PLUS
+                    TEMP(t94)
+                    CONST(-4)))
+                  _BADSUB L83)))))))
+           ESEQ(
+            LABEL(L83)
+            MEM(
+             BINOP(PLUS
+              TEMP(t94)
+              BINOP(MUL
+               TEMP(t95)
+               CONST(4))))))
+          BINOP(PLUS
+           TEMP(t87)
+           TEMP(t86))))
+        MOVE(
+         TEMP(t84)
+         BINOP(PLUS
+          TEMP(t84)
+          CONST(1))))
+       MOVE(
+        TEMP(t85)
+        BINOP(MINUS
+         TEMP(t85)
+         CONST(1)))))
+     JUMP(
+      NAME(L85))))
+   LABEL(L84)))
+ MOVE(
+  TEMP(t10)
+  CONST(0)))
+)
