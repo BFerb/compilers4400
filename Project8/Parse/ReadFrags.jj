@@ -125,6 +125,7 @@ TOKEN :
 | < FORMALS:  "Formals" >
 | < BADPTR:   "BadPtr" >
 | < BADSUB:   "BadSub" >
+| < MAXARG:   "maxArgOffset" >
 | < INREG:    "InReg" >
 | < INFRAME:  "InFrame" >
 
@@ -249,6 +250,7 @@ Translate.Frag ProcFrag() :
 Frame.Frame Frame() :
 {
     Token name;
+    Token offset;
     Riscv.RiscvFrame frame = null;
 
     LinkedList formals = null;
@@ -269,6 +271,8 @@ Frame.Frame Frame() :
 	  	   System.err.println("badSub name does not match! " + name.image);		
 	  } ]
 
+    [ <MAXARG> <LPAREN> offset = <NUM> <RPAREN>
+      { frame.maxArgOffset = parseInt(offset.image); } ]
 	<RPAREN>
 	{ return frame; }
 }
