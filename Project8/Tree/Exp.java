@@ -17,6 +17,7 @@ import Temp.Temp;
 
 public abstract class Exp implements Hospitable
 {
+    public abstract Temp accept(CodeVisitor v);
     public abstract void accept(IntVisitor v, int d);
 
     public abstract LinkedList<Exp> kids();

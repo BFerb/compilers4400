@@ -29,6 +29,7 @@ public class JUMP extends Stm
 		targets.addFirst(target);
     }
 
+    public void accept(CodeVisitor v) { v.visit(this); }
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
 
     public LinkedList<Exp> kids() {

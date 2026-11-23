@@ -36,5 +36,6 @@ public class MOVE extends Stm
         return new MOVE(dst, kids.getFirst());
     }
 
+    public void accept(CodeVisitor v) { v.visit(this); }
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
 }

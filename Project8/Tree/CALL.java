@@ -38,5 +38,6 @@ public class CALL extends Exp
         return new CALL(function, arguments);
     }
 
+    public Temp accept(CodeVisitor v) { return v.visit(this); }
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
 }

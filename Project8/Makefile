@@ -42,30 +42,33 @@ READABSYNGEN = $(DEFAULT_READABSYNGEN) \
 	$(SEMANTDIR)/ReadAbsynConstants.java \
 	$(SEMANTDIR)/ReadAbsynTokenManager.java
 
-all: $(PARSEDIR)/$(MJ_PARSER).java \
-	$(SEMANTDIR)/ReadAbsyn.java \
-	$(PARSESRC:.java=.class) \
-	$(TYPESRC:.java=.class) \
-	$(SYMSRC:.java=.class) \
-	$(SEMANTSRC:.java=.class) \
-	$(TEMPSRC:.java=.class) \
-    $(FRAMESRC:.java=.class) \
-    $(TREESRC:.java=.class) \
-    $(RISCVSRC:.java=.class) \
-    $(TRANSLATESRC:.java=.class)
+FRAGDIR = build/readfrags
+FRAGGEN = $(FRAGDIR)/ReadFrags.java $(FRAGDIR)/ReadFragsConstants.java $(FRAGDIR)/ReadFragsTokenManager.java
+BACKENDSRC = $(wildcard Canon/*.java Assem/*.java)
+PROJECTSRC = $(PARSESRC) $(SEMANTSRC) $(TYPESRC) $(SYMSRC) $(TEMPSRC) \
+    $(FRAMESRC) $(TREESRC) $(RISCVSRC) $(TRANSLATESRC) $(BACKENDSRC)
+
+.PHONY: all clean realclean
+all: Assem/Main.class
+
+Assem/Main.class: Makefile $(PARSEDIR)/$(MJ_PARSER).java $(SEMANTDIR)/ReadAbsyn.java $(FRAGDIR)/ReadFrags.java $(PROJECTSRC)
+	$(JAVAC) $(JFLAGS) -d . $(MJ_JAVACCGEN) $(READABSYNGEN) $(FRAGGEN) $(PROJECTSRC)
+
+$(FRAGDIR)/ReadFrags.java: $(PARSEDIR)/ReadFrags.jj
+	mkdir -p $(FRAGDIR)
+	$(JAVACC) -OUTPUT_DIRECTORY=$(FRAGDIR) $<
 
 $(PARSEDIR)/$(MJ_PARSER).java: $(PARSEDIR)/$(MJ_PARSER).jj
-	cd $(PARSEDIR); ${JAVACC} $(MJ_PARSER).jj;
-	${JAVAC} ${JFLAGS} ${MJ_JAVACCGEN}
+	cd $(PARSEDIR) && $(JAVACC) $(MJ_PARSER).jj
 
 $(SEMANTDIR)/ReadAbsyn.java: $(SEMANTDIR)/ReadAbsyn.jj
-	cd $(SEMANTDIR); ${JAVACC} ReadAbsyn.jj;
-	${JAVAC} ${JFLAGS} ${READABSYNGEN}
+	cd $(SEMANTDIR) && $(JAVACC) ReadAbsyn.jj
 
 %.class : %.java
 	${JAVAC} ${JFLAGS} $<
 
 clean:
+	rm -f $(FRAGDIR)/*.java $(PARSEDIR)/ReadFrags*.class Assem/*.class Canon/*.class
 	rm -f $(PARSESRC:.java=.class) \
 		$(TYPESRC:.java=.class) \
 		$(SYMSRC:.java=.class) \

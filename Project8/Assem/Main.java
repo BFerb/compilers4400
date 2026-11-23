@@ -77,7 +77,7 @@ public class Main
 		    }
 	    }
 		
-		if (null == reader) usage();
+		if (reader == null) reader = new java.io.InputStreamReader(System.in);
 		
 		LinkedList<Translate.Frag> frags = null;
 
@@ -167,7 +167,7 @@ public class Main
 				}
 
 				writer.println("ProcFrag(");
-				p.frame.printFrame(writer);
+				p.frame.printAssemblyFrame(writer);
 				for (Assem.Instr i : code)
 				{
 					i.output(writer);

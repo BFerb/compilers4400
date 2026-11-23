@@ -8,7 +8,6 @@ PARSER_BEGIN(ReadFrags)
 package Parse;
 import java.util.HashMap;
 import java.util.Vector;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,7 +16,7 @@ import java.util.List;
 	static private Riscv.RiscvFrame masterFrame = new Riscv.RiscvFrame();
 
 	static Vector<Temp.Temp>  tempVector = null;
-	static Vector<Temp.Label> labelVector = null;
+	static private final HashMap<String, Temp.Label> labels = new HashMap<String, Temp.Label>();
 
 	static Temp.Temp getTemp(int num)
 	{
@@ -41,16 +40,12 @@ import java.util.List;
 
 	static Temp.Label getLabel(String s)
 	{
-	    if (null == labelVector) labelVector = new Vector<Temp.Label>();
-
-	    int num = Integer.MIN_VALUE;
-	    if (s.startsWith("L"))
-		num = parseInt(s.substring(1));
-	    if (num == Integer.MIN_VALUE) return new Temp.Label(s);
-
-	    for (int i = labelVector.size(); i <= num; i++)
-		labelVector.add(new Temp.Label());
-	    return labelVector.elementAt(num);
+            Temp.Label label = labels.get(s);
+            if (label == null) {
+                label = s.matches("L[0-9]+") ? new Temp.Label() : new Temp.Label(s);
+                labels.put(s, label);
+            }
+            return label;
 	}
 
 	static int parseInt(String s)
@@ -90,7 +85,7 @@ TOKEN :
 | < DQUOTE: "\"">
 
 | < ALIGN: "align" >
-| < ASCIZ: "asciiz" >
+| < ASCIZ: "asciz" | "asciiz" >
 | < DATA:  "data" >
 | < WORD:  "word" >
 
@@ -150,7 +145,7 @@ TOKEN :
 
 | < ID: ( ["A" - "Z"] | ["a" - "z"] | ["0" - "9"] | "_" )
 	       ( ["A" - "Z"] | ["a" - "z"] | ["0" - "9"] | "_" | "." )* >
-| <STRINGVAL: "\""  (~["\""])*  "\"" >
+| <STRINGVAL: "\"" ( "\\" ~[] | ~["\"", "\\"] )* "\"" >
 
 }
 
@@ -170,13 +165,14 @@ LinkedList<Translate.Frag> Program() :
       |
       frag = ProcFrag() { frags.add(frag); }
     )*
-    { return frags; }
+    <EOF> { return frags; }
 }
 
 Translate.Frag DataFrag() :
 {
     Token name = null;
     Token num = null;
+    Token directive;
     String s = new String();
 }
 {
@@ -188,14 +184,14 @@ Translate.Frag DataFrag() :
 	    if (null == num) s = s + "\n"; else s = s + " " + num.image + "\n";
 	}
     ]
-    name = <ID> <COLON> { s = s + name.image + ":\n"; }
+    name = <ID> <COLON> { s = s + getLabel(name.image) + ":\n"; }
     (
-     LOOKAHEAD(2) <DOT> <ASCIZ> name = <STRINGVAL>
+     LOOKAHEAD(2) <DOT> directive = <ASCIZ> name = <STRINGVAL>
 	{ s = s.substring(0,s.length() - 1)
-	  + "\t.asciiz\t" + name.image;}
+	  + "\t." + directive.image + "\t" + name.image;}
      |
-     (LOOKAHEAD(2)  <DOT> <WORD> name = <ID>
-	 { s = s + "\t.word " + name.image + "\n";}
+     (LOOKAHEAD(2)  <DOT> <WORD> (name = <ID> | name = <NUM>)
+	 { s = s + "\t.word " + (name.kind == NUM ? name.image : getLabel(name.image).toString()) + "\n";}
       )*
     )
 	<RPAREN>

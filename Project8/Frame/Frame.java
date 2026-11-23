@@ -44,6 +44,8 @@ public abstract class Frame
   public abstract Temp.Label badSub();
   public abstract String tempMap(Temp.Temp temp);
   public abstract void printFrame(java.io.PrintWriter pw);
+  public void printAssemblyFrame(java.io.PrintWriter pw) { printFrame(pw); }
 
+  public abstract List<Assem.Instr> codeGen(List<Tree.Stm> body);
   public abstract void procEntryExit1(List<Tree.Stm> body);
 }

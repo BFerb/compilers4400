@@ -145,7 +145,7 @@ public class RiscvFrame extends Frame.Frame
 	callerSaves = { T0, T1, T2, T3, T4, T5, T6};
 
     public static final Temp[] registers = 
-    {  ZERO, RA, SP, GP, TP, T0, T1, T2, S1, A0, A1, A2, A3, A4, A5, A6, A7 ,
+    {  ZERO, RA, SP, GP, TP, T0, T1, T2, S0, S1, A0, A1, A2, A3, A4, A5, A6, A7 ,
     S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, T3, T4, T5, T6};
 
     public static final Temp[] colorRegs = 
@@ -262,6 +262,8 @@ public class RiscvFrame extends Frame.Frame
         tempMap.put(A3,   "a3");
         tempMap.put(A4,   "a4");
         tempMap.put(A5,   "a5");
+        tempMap.put(A6,   "a6");
+        tempMap.put(A7,   "a7");
         tempMap.put(S2,   "s2");
         tempMap.put(S3,   "s3");
         tempMap.put(S4,   "s4");
@@ -304,7 +306,17 @@ public class RiscvFrame extends Frame.Frame
 
     public void printFrame(java.io.PrintWriter writer)
     {
-	writer.println("RiscvFrame(");
+	printFrame(writer, "RiscvFrame");
+    }
+
+    public void printAssemblyFrame(java.io.PrintWriter writer)
+    {
+        printFrame(writer, "Riscv.RiscvFrame");
+    }
+
+    private void printFrame(java.io.PrintWriter writer, String frameName)
+    {
+        writer.println(frameName + "(");
 	writer.println(this.name + ":");
 	writer.print("Formals(");
     
@@ -351,6 +363,28 @@ public class RiscvFrame extends Frame.Frame
 
     public void procEntryExit1(List<Tree.Stm> body)
     {
+        List<Tree.Stm> entry = new LinkedList<Tree.Stm>();
+        LinkedList<Tree.Stm> exit = new LinkedList<Tree.Stm>();
+        for (Temp register : calleeSaves) {
+            Tree.TEMP saved = TEMP(new Temp());
+            entry.add(MOVE(saved, TEMP(register)));
+            exit.addFirst(MOVE(TEMP(register), saved));
+        }
+
+        if (formals.size() != actuals.size())
+            throw new IllegalArgumentException("Mismatched argument locations in " + name);
+        Iterator<Frame.Access> incoming = actuals.iterator();
+        for (Frame.Access formal : formals) {
+            Frame.Access actual = incoming.next();
+            entry.add(MOVE(formal.exp(this), actual.exp(this)));
+        }
+        body.addAll(0, entry);
+        body.addAll(exit);
+    }
+
+    public List<Assem.Instr> codeGen(List<Tree.Stm> body)
+    {
+        return new Codegen(this).select(body);
     }
 
 

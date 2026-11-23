@@ -24,6 +24,7 @@ public class NAME extends Exp
 		//System.out.println("\n NAME is called : l :"+l);
 		this.label = label; 
 	}
+    public Temp accept(CodeVisitor v) { return v.visit(this); }
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
 
     public LinkedList<Exp> kids() {

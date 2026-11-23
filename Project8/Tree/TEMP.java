@@ -23,6 +23,7 @@ public class TEMP extends Exp
 		temp=t; 
 		//System.out.println("\n Call to TEMP : "+t.toString());
 	}
+    public Temp accept(CodeVisitor v) { return v.visit(this); }
     public void accept(IntVisitor v, int d) { v.visit(this, d); }
 
     public LinkedList<Exp> kids() {
