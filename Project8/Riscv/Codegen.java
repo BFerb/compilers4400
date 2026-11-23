@@ -49,8 +49,8 @@ public class Codegen extends CodeVisitor {
         if (node.dst instanceof TEMP) {
             move(((TEMP) node.dst).temp, node.src.accept(this));
         } else if (node.dst instanceof MEM) {
-            Address address = address(((MEM) node.dst).exp);
-            store(node.src.accept(this), address);
+            Temp value = node.src.accept(this);
+            store(value, address(((MEM) node.dst).exp));
         } else {
             throw new IllegalArgumentException("Invalid MOVE destination");
         }
@@ -112,11 +112,16 @@ public class Codegen extends CodeVisitor {
 
     private static class Address {
         final Temp base;
-        final int offset;
+        final String displacement;
+
+        Address(Temp base) {
+            this.base = base;
+            displacement = "";
+        }
 
         Address(Temp base, int offset) {
             this.base = base;
-            this.offset = offset;
+            this.displacement = Integer.toString(offset);
         }
     }
 
@@ -135,29 +140,40 @@ public class Codegen extends CodeVisitor {
         } else if (expression instanceof CONST && fitsImmediate(((CONST) expression).value)) {
             return new Address(RiscvFrame.ZERO, ((CONST) expression).value);
         }
-        return new Address(expression.accept(this), 0);
+        return new Address(expression.accept(this));
     }
 
     public Temp visit(MEM node) {
         Temp result = new Temp();
         Address address = address(node.exp);
-        operation("\tlw\t`d0,\t" + address.offset + "(`s0)", result, address.base);
+        // The reference assembly annotates loads through a bare register.
+        String operand = address.displacement.isEmpty() ? "(`s0) // this guy" : address.displacement + "(`s0)";
+        operation("\tlw\t`d0,\t" + operand, result, address.base);
         return result;
     }
 
     private void store(Temp value, Address address) {
-        operation("\tsw\t`s0,\t" + address.offset + "(`s1)", null, value, address.base);
+        operation("\tsw\t`s0,\t" + address.displacement + "(`s1)", null, value, address.base);
     }
 
     public Temp visit(BINOP node) {
         Temp result = new Temp();
         Exp left = node.left, right = node.right;
-        if (node.binop == BINOP.PLUS && left instanceof CONST && !(right instanceof CONST)) {
+        if ((node.binop == BINOP.PLUS || node.binop == BINOP.MUL)
+                && left instanceof CONST && !(right instanceof CONST)) {
             left = node.right;
             right = node.left;
         }
         if (right instanceof CONST) {
             int constant = ((CONST) right).value;
+            if (constant == 0 && (node.binop == BINOP.PLUS || node.binop == BINOP.MINUS)) {
+                return left.accept(this);
+            }
+            if (node.binop == BINOP.MUL && constant > 0 && Integer.bitCount(constant) == 1) {
+                int shift = Integer.numberOfTrailingZeros(constant);
+                operation("\tsll\t`d0,\t`s0,\t" + shift, result, left.accept(this));
+                return result;
+            }
             long immediate = node.binop == BINOP.MINUS ? -(long) constant : constant;
             String opcode = null;
             if (fitsImmediate(immediate)) {

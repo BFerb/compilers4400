@@ -7,7 +7,6 @@
 PARSER_BEGIN(ReadFrags)
 package Parse;
 import java.util.HashMap;
-import java.util.Vector;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
     {
 	static private Riscv.RiscvFrame masterFrame = new Riscv.RiscvFrame();
 
-	static Vector<Temp.Temp>  tempVector = null;
+	static private final HashMap<Integer, Temp.Temp> temps = new HashMap<Integer, Temp.Temp>();
 	static private final HashMap<String, Temp.Label> labels = new HashMap<String, Temp.Label>();
 
 	static Temp.Temp getTemp(int num)
@@ -25,17 +24,15 @@ import java.util.List;
 		    System.err.println("ERROR: getTemp(" + num + ")");
 		    return null;
 		}
-	    if (null == tempVector)
-		{
-		    tempVector = new Vector<Temp.Temp>();
-		    Temp.Temp[] regs = Riscv.RiscvFrame.registers;
-		    for (int i = 0; i < regs.length; i++)
-			{ tempVector.add(regs[i]); }
-		}
+            Temp.Temp[] registers = Riscv.RiscvFrame.registers;
+            if (num < registers.length) return registers[num];
 
-	    for (int i = tempVector.size(); i <= num; i++)
-		tempVector.add(new Temp.Temp());
-	    return tempVector.elementAt(num);
+            Temp.Temp temp = temps.get(num);
+            if (temp == null) {
+                temp = new Temp.Temp();
+                temps.put(num, temp);
+            }
+            return temp;
 	}
 
 	static Temp.Label getLabel(String s)
@@ -47,6 +44,38 @@ import java.util.List;
             }
             return label;
 	}
+
+        // Allocate numeric labels in procedure order, even when their data appears first.
+        private static class ParsedData extends Translate.DataFrag {
+            final String header;
+            final String name;
+            final List<String> words = new LinkedList<String>();
+            String literal;
+
+            ParsedData(String header, String name) {
+                super("");
+                this.header = header;
+                this.name = name;
+            }
+
+            private String spelling(String symbol, boolean resolveLabels) {
+                return resolveLabels && symbol.matches("L[0-9]+") ? getLabel(symbol).toString() : symbol;
+            }
+
+            void render(boolean resolveLabels) {
+                StringBuilder text = new StringBuilder(header);
+                text.append(spelling(name, resolveLabels)).append(':');
+                if (literal != null) {
+                    text.append(literal);
+                } else {
+                    text.append('\n');
+                    for (String word : words) {
+                        text.append("\t.word ").append(spelling(word, resolveLabels)).append('\n');
+                    }
+                }
+                data = text.toString();
+            }
+        }
 
 	static int parseInt(String s)
 	{
@@ -165,7 +194,12 @@ LinkedList<Translate.Frag> Program() :
       |
       frag = ProcFrag() { frags.add(frag); }
     )*
-    <EOF> { return frags; }
+    <EOF> {
+        for (Translate.Frag entry : frags) {
+            if (entry instanceof ParsedData) ((ParsedData) entry).render(true);
+        }
+        return frags;
+    }
 }
 
 Translate.Frag DataFrag() :
@@ -173,6 +207,7 @@ Translate.Frag DataFrag() :
     Token name = null;
     Token num = null;
     Token directive;
+    ParsedData fragment;
     String s = new String();
 }
 {
@@ -184,18 +219,17 @@ Translate.Frag DataFrag() :
 	    if (null == num) s = s + "\n"; else s = s + " " + num.image + "\n";
 	}
     ]
-    name = <ID> <COLON> { s = s + getLabel(name.image) + ":\n"; }
+    name = <ID> <COLON> { fragment = new ParsedData(s, name.image); }
     (
      LOOKAHEAD(2) <DOT> directive = <ASCIZ> name = <STRINGVAL>
-	{ s = s.substring(0,s.length() - 1)
-	  + "\t." + directive.image + "\t" + name.image;}
+	{ fragment.literal = "\t." + directive.image + "\t" + name.image; }
      |
      (LOOKAHEAD(2)  <DOT> <WORD> (name = <ID> | name = <NUM>)
-	 { s = s + "\t.word " + (name.kind == NUM ? name.image : getLabel(name.image).toString()) + "\n";}
+	 { fragment.words.add(name.image); }
       )*
     )
 	<RPAREN>
-    { return new Translate.DataFrag(s); }
+    { fragment.render(false); return fragment; }
 }
 
 
